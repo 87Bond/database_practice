@@ -1,2 +1,2 @@
 # database_practice
-For practice
+医院挂号系统
