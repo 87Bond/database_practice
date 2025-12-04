@@ -1,5 +1,6 @@
 <template>
   <div class="msg-card">
+    <div v-if="subtitle" class="msg-subtitle">{{ subtitle }}</div>
     <div class="msg-title">{{ title }}</div>
     <div class="msg-content">{{ content }}</div>
     <div class="msg-time">{{ time }}</div>
@@ -11,7 +12,8 @@ export default {
   props: {
     title: String,
     content: String,
-    time: String
+    time: String,
+    subtitle: String
   }
 }
 </script>
@@ -27,6 +29,11 @@ export default {
   font-weight: bold;
   color: #2f5496;
   margin-bottom: 5px;
+}
+.msg-subtitle {
+  font-size: 12px;
+  color: #777;
+  margin-bottom: 3px;
 }
 .msg-content {
   color: #333;

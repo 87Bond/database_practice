@@ -1,0 +1,91 @@
+package com.medical.backend.mapper;
+
+import com.medical.backend.dto.DoctorPortalDtos;
+import com.medical.backend.model.Registration;
+import org.apache.ibatis.annotations.*;
+
+import java.time.LocalDate;
+import java.util.List;
+
+@Mapper
+public interface RegistrationMapper {
+
+    @Insert("""
+            INSERT INTO registration (reg_id, patient_id, doctor_id, department_id, reg_date, reg_time_slot,
+                                      reg_status, reg_fee, pay_status, create_time, paid_at, slot_id)
+            VALUES (#{regId}, #{patientId}, #{doctorId}, #{departmentId}, #{regDate}, #{regTimeSlot},
+                    #{regStatus}, #{regFee}, #{payStatus}, #{createTime}, #{paidAt}, #{slotId})
+            """)
+    int insert(Registration registration);
+
+    @Select("""
+            SELECT reg_id, patient_id, doctor_id, department_id, reg_date, reg_time_slot,
+                   reg_status, reg_fee, pay_status, create_time, paid_at, slot_id
+            FROM registration
+            WHERE reg_id = #{regId}
+            """)
+    Registration findById(String regId);
+
+    @Update("""
+            UPDATE registration
+            SET reg_status = #{regStatus}, pay_status = #{payStatus}, paid_at = #{paidAt}
+            WHERE reg_id = #{regId}
+            """)
+    int updateStatus(@Param("regId") String regId,
+                     @Param("regStatus") String regStatus,
+                     @Param("payStatus") String payStatus,
+                     @Param("paidAt") java.time.LocalDateTime paidAt);
+
+    @Select("""
+            SELECT reg_id, patient_id, doctor_id, department_id, reg_date, reg_time_slot,
+                   reg_status, reg_fee, pay_status, create_time, paid_at, slot_id
+            FROM registration
+            WHERE patient_id = #{patientId}
+              AND (#{from,jdbcType=DATE} IS NULL OR reg_date >= #{from,jdbcType=DATE})
+              AND (#{to,jdbcType=DATE} IS NULL OR reg_date <= #{to,jdbcType=DATE})
+              AND (#{departmentId,jdbcType=VARCHAR} IS NULL OR department_id = #{departmentId,jdbcType=VARCHAR})
+              AND (#{status,jdbcType=VARCHAR} IS NULL OR reg_status = #{status,jdbcType=VARCHAR})
+            ORDER BY reg_date DESC, create_time DESC
+            """)
+    List<Registration> findByConditions(@Param("patientId") String patientId,
+                                        @Param("from") LocalDate from,
+                                        @Param("to") LocalDate to,
+                                        @Param("departmentId") String departmentId,
+                                        @Param("status") String status);
+
+    @Select("""
+            SELECT r.reg_id       AS regId,
+                   r.patient_id   AS patientId,
+                   u.user_name    AS patientName,
+                   r.reg_date     AS regDate,
+                   r.reg_time_slot AS regTimeSlot,
+                   r.reg_status   AS regStatus,
+                   r.pay_status   AS payStatus
+            FROM registration r
+                     JOIN user_directory u ON r.patient_id = u.user_id
+            WHERE r.doctor_id = #{doctorId}
+              AND (#{date,jdbcType=DATE} IS NULL OR r.reg_date = #{date,jdbcType=DATE})
+            ORDER BY r.reg_date, r.reg_time_slot
+            """)
+    java.util.List<DoctorPortalDtos.DoctorRegistrationView> findDoctorRegistrations(
+            @Param("doctorId") String doctorId,
+            @Param("date") LocalDate date);
+
+    @Select("""
+            SELECT COUNT(1)
+            FROM registration
+            WHERE patient_id = #{patientId}
+              AND doctor_id = #{doctorId}
+            """)
+    int countByPatientAndDoctor(@Param("patientId") String patientId,
+                                @Param("doctorId") String doctorId);
+
+    @Select("""
+            SELECT COUNT(1)
+            FROM registration
+            WHERE patient_id = #{patientId}
+              AND doctor_id = #{doctorId}
+            """)
+    int countByDoctorAndPatient(@Param("doctorId") String doctorId,
+                                @Param("patientId") String patientId);
+}
