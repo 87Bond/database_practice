@@ -45,7 +45,12 @@ public class RegistrationService {
         List<DoctorTimeSlot> slots = doctorTimeSlotMapper.findSlots(date, departmentId, doctorId);
         List<Map<String, Object>> slotList = slots.stream()
                 .map(s -> Map.<String, Object>of(
-                        "timeSlot", s.getTimeSlot(),
+                        "slotId", s.getSlotId(),
+                        "startTime", s.getStartTime() != null ? s.getStartTime().toString().substring(0, 5) : null,
+                        "endTime", s.getEndTime() != null ? s.getEndTime().toString().substring(0, 5) : null,
+                        "label", s.getStartTime() != null && s.getEndTime() != null
+                                ? s.getStartTime().toString().substring(0, 5) + "-" + s.getEndTime().toString().substring(0, 5)
+                                : s.getTimeSlot(),
                         "remain", s.getCapacity() - s.getBookedCount()))
                 .collect(Collectors.toList());
         Map<String, Object> data = Map.of(
@@ -73,15 +78,36 @@ public class RegistrationService {
             return ApiResponse.error(ErrorCodes.DOCTOR_DEPT_MISMATCH, "医生不属于该科室");
         }
 
-        // 找到对应号源
-        List<DoctorTimeSlot> slots = doctorTimeSlotMapper.findSlots(
-                req.getRegDate(), req.getDepartmentId(), req.getDoctorId());
-        DoctorTimeSlot targetSlot = slots.stream()
-                .filter(s -> s.getTimeSlot().equals(req.getRegTimeSlot()))
-                .findFirst()
-                .orElse(null);
+        // 找到对应号源（优先使用 slotId，兼容旧的只传 regTimeSlot 的情况）
+        DoctorTimeSlot targetSlot = null;
+        if (req.getSlotId() != null && !req.getSlotId().isEmpty()) {
+            targetSlot = doctorTimeSlotMapper.findById(req.getSlotId());
+            if (targetSlot != null) {
+                // 基本一致性校验，防止前端传入不匹配的 slotId
+                if (!req.getDoctorId().equals(targetSlot.getDoctorId())
+                        || !req.getDepartmentId().equals(targetSlot.getDepartmentId())
+                        || !req.getRegDate().equals(targetSlot.getSlotDate())) {
+                    return ApiResponse.error(ErrorCodes.PARAM_ERROR, "号源与医生/科室/日期不匹配");
+                }
+            }
+        } else {
+            // 兼容旧逻辑，使用 regTimeSlot 作为标识
+            List<DoctorTimeSlot> slots = doctorTimeSlotMapper.findSlots(
+                    req.getRegDate(), req.getDepartmentId(), req.getDoctorId());
+            targetSlot = slots.stream()
+                    .filter(s -> s.getTimeSlot().equals(req.getRegTimeSlot()))
+                    .findFirst()
+                    .orElse(null);
+        }
+
         if (targetSlot == null || targetSlot.getCapacity() <= targetSlot.getBookedCount()) {
             return ApiResponse.error(ErrorCodes.SLOT_NOT_ENOUGH, "该时段号源不足");
+        }
+
+        // 限制：同一患者在同一号源（时间段）最多只能预约一次（未取消的）
+        int existed = registrationMapper.countByPatientAndSlot(patientId, targetSlot.getSlotId());
+        if (existed > 0) {
+            return ApiResponse.error(ErrorCodes.PARAM_ERROR, "同一时间段您已预约过该医生");
         }
 
         String regId = IdGenerator.newRegistrationId();
@@ -93,7 +119,18 @@ public class RegistrationService {
         registration.setDoctorId(req.getDoctorId());
         registration.setDepartmentId(req.getDepartmentId());
         registration.setRegDate(req.getRegDate());
-        registration.setRegTimeSlot(req.getRegTimeSlot());
+        // 统一将挂号记录里的时间段文字填成“HH:mm-HH:mm”，便于历史查看
+        String regTimeLabel;
+        if (targetSlot.getStartTime() != null && targetSlot.getEndTime() != null) {
+            String start = targetSlot.getStartTime().toString().substring(0, 5);
+            String end = targetSlot.getEndTime().toString().substring(0, 5);
+            regTimeLabel = start + "-" + end;
+        } else if (req.getRegTimeSlot() != null) {
+            regTimeLabel = req.getRegTimeSlot();
+        } else {
+            regTimeLabel = targetSlot.getTimeSlot();
+        }
+        registration.setRegTimeSlot(regTimeLabel);
         registration.setRegStatus("Booked");
         registration.setRegFee(3000);
         registration.setPayStatus("Unpaid");
@@ -192,7 +229,10 @@ public class RegistrationService {
             dto.setRegDate(r.getRegDate());
             dto.setRegTimeSlot(r.getRegTimeSlot());
             dto.setDepartmentId(r.getDepartmentId());
+            dto.setDepartmentName(r.getDepartmentName());
+            dto.setDepartmentLocation(r.getDepartmentLocation());
             dto.setDoctorId(r.getDoctorId());
+            dto.setDoctorName(r.getDoctorName());
             dto.setRegStatus(r.getRegStatus());
             dto.setPayStatus(r.getPayStatus());
             return dto;

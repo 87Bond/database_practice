@@ -25,6 +25,8 @@ public class MedicalRecordDtos {
         private String patientId;
         private String patientName;
         private String departmentId;
+        private String departmentName;
+        private String departmentLocation;
         private LocalDate regDate;
         private String regTimeSlot;
         private String diagnosis;

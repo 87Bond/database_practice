@@ -34,6 +34,10 @@ public final class IdGenerator {
         return "M" + timestampRandom();
     }
 
+    public static String newSlotId() {
+        return "SLOT" + timestampRandom();
+    }
+
     private static String timestampRandom() {
         int rand = ThreadLocalRandom.current().nextInt(100, 1000);
         return LocalDateTime.now().format(TIME_FORMATTER) + rand;

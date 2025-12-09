@@ -7,7 +7,8 @@
       <router-link v-if="isLoggedIn" to="/message" class="nav-item">消息</router-link>
       <router-link v-if="isLoggedIn" to="/profile" class="nav-item">个人中心</router-link>
       <router-link v-if="isLoggedIn && isDoctor" to="/doctor-panel" class="nav-item">医生端</router-link>
-      <router-link v-if="isLoggedIn && isAdmin" to="/admin-panel" class="nav-item">管理员</router-link>
+      <router-link v-if="isLoggedIn && isDeptManager" to="/dept-panel" class="nav-item">科室端</router-link>
+      <router-link v-if="isLoggedIn && isAdmin" to="/admin-panel" class="nav-item">系统管理</router-link>
     </nav>
     <!-- 页面容器（路由匹配的页面会显示在这里） -->
     <div class="page-container">
@@ -32,6 +33,9 @@ export default {
     },
     isDoctor () {
       return this.userInfo && this.userInfo.role === 'doctor'
+    },
+    isDeptManager () {
+      return this.userInfo && this.userInfo.role === 'dept_manager'
     },
     isAdmin () {
       return this.userInfo && this.userInfo.role === 'admin'

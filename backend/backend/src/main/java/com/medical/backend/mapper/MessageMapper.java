@@ -16,6 +16,16 @@ public interface MessageMapper {
     int insert(Message message);
 
     @Select("""
+            SELECT create_time
+            FROM message
+            WHERE (create_user_id = #{a} AND target_user_id = #{b})
+               OR (create_user_id = #{b} AND target_user_id = #{a})
+            ORDER BY create_time DESC
+            LIMIT 1
+            """)
+    java.time.LocalDateTime findLastMessageTime(@Param("a") String a, @Param("b") String b);
+
+    @Select("""
             SELECT message_id, title, content, create_user_id, target_user_id, create_time, is_valid
             FROM message
             WHERE (#{inbox} AND target_user_id = #{userId}

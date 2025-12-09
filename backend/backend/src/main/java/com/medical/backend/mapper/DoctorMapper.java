@@ -1,9 +1,7 @@
 package com.medical.backend.mapper;
 
 import com.medical.backend.model.Doctor;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -29,4 +27,12 @@ public interface DoctorMapper {
             WHERE user_id = #{userId}
             """)
     Doctor findById(String userId);
+
+    @Update("""
+            UPDATE doctor
+            SET department_id = #{departmentId}
+            WHERE user_id = #{userId}
+            """)
+    int updateDepartment(@Param("userId") String userId,
+                         @Param("departmentId") String departmentId);
 }

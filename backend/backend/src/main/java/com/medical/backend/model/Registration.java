@@ -19,5 +19,8 @@ public class Registration {
     private LocalDateTime createTime;
     private LocalDateTime paidAt;
     private String slotId;
+    // 非持久化展示字段
+    private String doctorName;
+    private String departmentName;
+    private String departmentLocation;
 }
-

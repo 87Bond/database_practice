@@ -7,6 +7,7 @@ import MessagePage from '@/views/MessagePage' // 改这里
 import ProfilePage from '@/views/ProfilePage' // 改这里
 import DoctorPanel from '@/views/DoctorPanel'
 import AdminPanel from '@/views/AdminPanel'
+import DeptPanel from '@/views/DeptPanel'
 
 Vue.use(Router)
 
@@ -51,6 +52,12 @@ const router = new Router({
       name: 'AdminPanel',
       component: AdminPanel,
       meta: { roles: ['admin'] }
+    },
+    {
+      path: '/dept-panel',
+      name: 'DeptPanel',
+      component: DeptPanel,
+      meta: { roles: ['dept_manager'] }
     }
   ]
 })

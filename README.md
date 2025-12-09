@@ -117,10 +117,10 @@ mvn spring-boot:run
   - `POST /api/auth/change-password`：修改密码（ChangePassword）
 - 科室 & 医生 & 号源
   - `GET /api/departments`：科室列表（ListDepartments）
-  - `GET /api/doctors`：医生 + 可约时段（ListDoctors）
+  - `GET /api/doctors`：医生 + 可约号源（包含具体起止时间和剩余数量）
   - `GET /api/registrations/slots`：查询号源（QuerySlots）
 - 挂号流程（`/api/registrations`）
-  - `POST /api/registrations`：创建挂号（CreateRegistration）
+  - `POST /api/registrations`：创建挂号（CreateRegistration，传 `slotId`，后端会把时段存成“HH:mm-HH:mm”）
   - `POST /api/registrations/{regId}/cancel`：取消挂号（CancelRegistration）
   - `POST /api/registrations/{regId}/pay`：支付挂号费（PayRegistration）
   - `GET /api/registrations`：查询挂号记录（ListRegistrations）
@@ -142,6 +142,13 @@ mvn spring-boot:run
 - 冻结 / 解冻用户（`/api/users`）
   - `POST /api/users/{userId}/freeze`：冻结用户（FreezeUser）
   - `POST /api/users/{userId}/unfreeze`：解冻用户（UnfreezeUser）
+
+- 科室管理员工作台（`/api/dept`）
+  - `GET /api/dept/doctors`：查看本科室医生
+  - `POST /api/dept/slots`：为本科室医生创建号源（起止时间 + 容量）
+  - `GET /api/dept/slots`：查看本科室某日全部号源
+  - `GET /api/dept/registrations`：查看本科室所有医生的挂号记录
+  - `POST /api/dept/doctors/{doctorId}/assign`：把已有医生划归当前科室
 
 > 说明：为了简化作业，没有引入 Spring Security / 真正的 JWT。  
 > 登录成功后返回的 `token` 实际上就是 `userId`，前端在请求时通过 HTTP 头 `X-User-Id` 传回，后端据此识别当前用户。
@@ -190,8 +197,8 @@ devServer: {
   - 登录成功后，把后端返回的 `token` 和 `userInfo` 存到 `localStorage`，并跳转到“个人中心”
 - `src/views/RegistrationPage.vue`
   - 初始化加载科室列表：`GET /api/departments`
-  - 选择科室 + 日期后加载医生及可预约时段：`GET /api/doctors?departmentId=&date=`
-  - 点击“立即挂号”：`POST /api/registrations`
+  - 选择科室 + 日期后加载医生及可预约时段：`GET /api/doctors?departmentId=&date=`（返回具体起止时间与剩余号源）
+  - 点击“立即挂号”：`POST /api/registrations`（传 `slotId`）
 - `src/views/MessagePage.vue`
   - 左侧会话列表：`GET /api/messages/conversations`
   - 中间聊天窗口：`GET /api/messages/conversation?targetUserId=...`
@@ -211,6 +218,12 @@ devServer: {
   - 查看某天的挂号患者：`GET /api/doctor/registrations`
   - 给患者发消息：`POST /api/messages`
   - 给某条挂号写病历：`POST /api/medical-records`
+- `src/views/DeptPanel.vue`
+  - 查看本科室医生：`GET /api/dept/doctors`
+  - 创建号源（起止时间 + 容量）：`POST /api/dept/slots`
+  - 查看号源：`GET /api/dept/slots`
+  - 查看本科室挂号记录：`GET /api/dept/registrations`
+  - 将已有医生划归本科室：`POST /api/dept/doctors/{doctorId}/assign`
 
 `src/api.js` 里对 axios 做了简单封装，在每个请求自动附带 `X-User-Id` 头：
 
@@ -240,7 +253,10 @@ api.interceptors.request.use((config) => {
 
 3. **前端**
    - 在 `medical-regist` 目录执行：`npm install`
-   - 然后执行：`npm run serve`
+   - 开发模式：`npm run serve`（依赖 devServer 代理 `/api -> http://localhost:8080`）
+   - 生产打包：`npm run build`，产物在 `medical-regist/dist`
+     - 若用本地静态服务器预览 dist，请确保后端地址正确：`src/api.js` 已设为 `http://localhost:8080/api`
+     - 如需自定义后端地址，修改 `src/api.js` 的 `baseURL`
 
 4. **体验流程**
    - 浏览器打开前端地址（一般是 `http://localhost:8080` 或 `http://localhost:8081`，以终端输出为准）

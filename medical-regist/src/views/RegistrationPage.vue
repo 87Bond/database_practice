@@ -22,7 +22,7 @@
         :doctorName="doctor.doctorName"
         :department="getDeptName(doctor.departmentId)"
         :title="doctor.title"
-        :timeSlots="doctor.availableTimeSlots"
+        :timeSlots="doctor.availableSlots"
         @register="slot => handleRegister(doctor, slot)"
       />
       <div v-if="doctorList.length === 0" class="empty-tip">
@@ -100,12 +100,16 @@ export default {
         alert('请先选择日期和科室')
         return
       }
+      if (!timeSlot || !timeSlot.slotId) {
+        alert('请选择有效的就诊时段')
+        return
+      }
       try {
         const res = await api.post('/registrations', {
           doctorId: doctor.userId,
           departmentId: this.selectedDeptId,
           regDate: this.selectedDate,
-          regTimeSlot: timeSlot
+          slotId: timeSlot.slotId
         })
         const body = res.data
         if (body.error_code === 0) {

@@ -30,8 +30,13 @@
         <input v-model="doctorForm.password" type="password" class="input">
       </div>
       <div class="form-item">
-        <label>科室ID：</label>
-        <input v-model="doctorForm.departmentId" type="text" placeholder="例如：D001" class="input">
+        <label>科室：</label>
+        <select v-model="doctorForm.departmentId" class="input">
+          <option value="">请选择科室</option>
+          <option v-for="d in departments" :key="d.departmentId" :value="d.departmentId">
+            {{ d.departmentName }}（{{ d.departmentId }}）
+          </option>
+        </select>
       </div>
       <div class="form-item">
         <label>职称：</label>
@@ -63,8 +68,13 @@
         <input v-model="deptForm.password" type="password" class="input">
       </div>
       <div class="form-item">
-        <label>科室ID：</label>
-        <input v-model="deptForm.departmentId" type="text" class="input">
+        <label>科室：</label>
+        <select v-model="deptForm.departmentId" class="input">
+          <option value="">请选择科室</option>
+          <option v-for="d in departments" :key="d.departmentId" :value="d.departmentId">
+            {{ d.departmentName }}（{{ d.departmentId }}）
+          </option>
+        </select>
       </div>
       <div class="form-item">
         <label>办公电话：</label>
@@ -104,6 +114,7 @@ export default {
     return {
       userId: '',
       resultMsg: '',
+      departments: [],
       doctorForm: {
         doctorName: '',
         phone: '',
@@ -128,7 +139,21 @@ export default {
       }
     }
   },
+  created () {
+    this.loadDepartments()
+  },
   methods: {
+    async loadDepartments () {
+      try {
+        const res = await api.get('/departments')
+        const body = res.data
+        if (body.error_code === 0) {
+          this.departments = body.data || []
+        }
+      } catch (e) {
+        console.error(e)
+      }
+    },
     async freezeUser () {
       if (!this.userId) {
         alert('请先输入用户ID')

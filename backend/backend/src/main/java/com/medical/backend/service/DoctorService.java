@@ -36,13 +36,26 @@ public class DoctorService {
             dto.setSpecialty(d.getSpecialty());
             if (date != null) {
                 List<DoctorTimeSlot> slots = doctorTimeSlotMapper.findByDoctorAndDate(d.getUserId(), date);
-                List<String> availableSlots = slots.stream()
+                List<DoctorDtos.SlotOption> availableSlots = slots.stream()
                         .filter(s -> s.getCapacity() != null
                                 && s.getBookedCount() != null
                                 && s.getCapacity() > s.getBookedCount())
-                        .map(DoctorTimeSlot::getTimeSlot)
+                        .map(s -> {
+                            DoctorDtos.SlotOption option = new DoctorDtos.SlotOption();
+                            option.setSlotId(s.getSlotId());
+                            String start = s.getStartTime() != null ? s.getStartTime().toString().substring(0, 5) : "";
+                            String end = s.getEndTime() != null ? s.getEndTime().toString().substring(0, 5) : "";
+                            option.setStartTime(start);
+                            option.setEndTime(end);
+                            String label = !start.isEmpty() && !end.isEmpty()
+                                    ? start + "-" + end
+                                    : s.getTimeSlot();
+                            option.setLabel(label);
+                            option.setRemain(s.getCapacity() - s.getBookedCount());
+                            return option;
+                        })
                         .collect(Collectors.toList());
-                dto.setAvailableTimeSlots(availableSlots);
+                dto.setAvailableSlots(availableSlots);
             }
             result.add(dto);
         }

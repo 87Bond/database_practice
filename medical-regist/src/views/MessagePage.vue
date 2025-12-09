@@ -17,8 +17,7 @@
           <div class="conv-main">
             <div class="conv-header">
               <span class="conv-name">
-                {{ conv.contactUserName || conv.contactUserId }}
-                <span class="conv-id">（{{ conv.contactUserId }}）</span>
+                {{ formatDisplayName(conv.contactUserName, conv.contactUserId) }}
               </span>
               <span class="conv-time">{{ formatTime(conv.lastTime) }}</span>
             </div>
@@ -177,7 +176,10 @@ export default {
               if (!map[r.doctorId]) {
                 map[r.doctorId] = {
                   userId: r.doctorId,
-                  displayName: r.doctorId
+                  displayName: this.formatDisplayName(
+                    `${r.doctorName || r.doctorId}${r.departmentName ? ' - ' + r.departmentName : ''}`,
+                    r.doctorId
+                  )
                 }
               }
             })
@@ -195,7 +197,7 @@ export default {
             const list = body.data || []
             this.contactOptions = list.map(c => ({
               userId: c.contactUserId,
-              displayName: `${c.contactUserName || c.contactUserId}（${c.contactUserId}）`
+              displayName: this.formatDisplayName(c.contactUserName, c.contactUserId)
             }))
           }
         } catch (e) {
@@ -259,6 +261,11 @@ export default {
       const id = item.createUserId || ''
       if (!name && !id) return ''
       return `来自：${name}${id ? '（' + id + '）' : ''}`
+    },
+    formatDisplayName (name, id) {
+      if (!id && !name) return ''
+      if (name && id) return `${name}（${id}）`
+      return name || id
     }
   },
   computed: {

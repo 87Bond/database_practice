@@ -12,6 +12,7 @@ public class DoctorPortalDtos {
         private String regId;
         private String patientId;
         private String patientName;
+        private String doctorId;
         private LocalDate regDate;
         private String regTimeSlot;
         private String regStatus;

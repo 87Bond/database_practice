@@ -26,6 +26,8 @@ public interface MedicalRecordMapper {
                    r.patient_id      AS patientId,
                    u.user_name       AS patientName,
                    r.department_id   AS departmentId,
+                   dept.department_name AS departmentName,
+                   dept.location     AS departmentLocation,
                    r.reg_date        AS regDate,
                    r.reg_time_slot   AS regTimeSlot,
                    mr.diagnosis      AS diagnosis,
@@ -36,6 +38,7 @@ public interface MedicalRecordMapper {
                      JOIN registration r ON mr.reg_id = r.reg_id
                      JOIN doctor d ON r.doctor_id = d.user_id
                      JOIN user_directory u ON r.patient_id = u.user_id
+                     LEFT JOIN department dept ON r.department_id = dept.department_id
             WHERE r.patient_id = #{patientId}
             ORDER BY mr.create_time DESC
             """)
@@ -49,6 +52,8 @@ public interface MedicalRecordMapper {
                    r.patient_id      AS patientId,
                    u.user_name       AS patientName,
                    r.department_id   AS departmentId,
+                   dept.department_name AS departmentName,
+                   dept.location     AS departmentLocation,
                    r.reg_date        AS regDate,
                    r.reg_time_slot   AS regTimeSlot,
                    mr.diagnosis      AS diagnosis,
@@ -59,6 +64,7 @@ public interface MedicalRecordMapper {
                      JOIN registration r ON mr.reg_id = r.reg_id
                      JOIN doctor d ON r.doctor_id = d.user_id
                      JOIN user_directory u ON r.patient_id = u.user_id
+                     LEFT JOIN department dept ON r.department_id = dept.department_id
             WHERE r.doctor_id = #{doctorId}
             ORDER BY mr.create_time DESC
             """)

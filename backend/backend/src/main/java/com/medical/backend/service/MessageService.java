@@ -25,6 +25,9 @@ public class MessageService {
     private final DepartmentManagerMapper departmentManagerMapper;
     private final SystemUserMapper systemUserMapper;
 
+    // 挂号相关的消息互发权限有效期（天）
+    private static final int MESSAGE_VALID_DAYS = 10;
+
     public MessageService(MessageMapper messageMapper,
                           UserDirectoryMapper userDirectoryMapper,
                           RegistrationMapper registrationMapper,
@@ -42,15 +45,31 @@ public class MessageService {
     public ApiResponse<MessageDtos.MessageView> sendMessage(String createUserId, MessageDtos.SendMessageRequest req) {
         String senderRole = userDirectoryMapper.findRoleByUserId(createUserId);
         String targetRole = userDirectoryMapper.findRoleByUserId(req.getTargetUserId());
+        java.time.LocalDate cutoffDate = java.time.LocalDate.now().minusDays(MESSAGE_VALID_DAYS);
+        LocalDateTime cutoffMsgTime = LocalDateTime.now().minusDays(MESSAGE_VALID_DAYS);
 
-        // 患者：只能给就诊过的医生发消息
+        // 患者：只能给在近 MESSAGE_VALID_DAYS 天内有“已支付挂号”的医生或科室管理员发消息
         if ("patient".equals(senderRole)) {
-            if (!"doctor".equals(targetRole)) {
-                return ApiResponse.error(ErrorCodes.NO_PERMISSION, "患者只能给就诊医生发消息");
-            }
-            int count = registrationMapper.countByPatientAndDoctor(createUserId, req.getTargetUserId());
-            if (count <= 0) {
-                return ApiResponse.error(ErrorCodes.NO_PERMISSION, "仅可向挂号过的医生发送消息");
+            if ("doctor".equals(targetRole)) {
+                int count = registrationMapper.countPaidAfterByPatientAndDoctor(
+                        createUserId, req.getTargetUserId(), cutoffDate);
+                if (count <= 0) {
+                    return ApiResponse.error(ErrorCodes.NO_PERMISSION,
+                            "仅可在支付成功且 10 天内向就诊医生发送消息");
+                }
+            } else if ("dept_manager".equals(targetRole)) {
+                DepartmentManager manager = departmentManagerMapper.findByUserId(req.getTargetUserId());
+                if (manager == null) {
+                    return ApiResponse.error(ErrorCodes.NO_PERMISSION, "科室管理员不存在");
+                }
+                int count = registrationMapper.countPaidAfterByPatientAndDepartment(
+                        createUserId, manager.getDepartmentId(), cutoffDate);
+                if (count <= 0) {
+                    return ApiResponse.error(ErrorCodes.NO_PERMISSION,
+                            "仅可在支付成功且 10 天内向负责您就诊科室的科室管理员发送消息");
+                }
+            } else {
+                return ApiResponse.error(ErrorCodes.NO_PERMISSION, "患者仅可向就诊医生或对应科室管理员发送消息");
             }
         }
 
@@ -61,9 +80,11 @@ public class MessageService {
                 return ApiResponse.error(ErrorCodes.NO_PERMISSION, "医生信息不存在");
             }
             if ("patient".equals(targetRole)) {
-                int count = registrationMapper.countByDoctorAndPatient(createUserId, req.getTargetUserId());
+                int count = registrationMapper.countPaidAfterByDoctorAndPatient(
+                        createUserId, req.getTargetUserId(), cutoffDate);
                 if (count <= 0) {
-                    return ApiResponse.error(ErrorCodes.NO_PERMISSION, "仅可向预约了你号的患者发送消息");
+                    return ApiResponse.error(ErrorCodes.NO_PERMISSION,
+                            "仅可在患者近 10 天内挂号且支付成功的情况下发送消息");
                 }
             } else if ("dept_manager".equals(targetRole)) {
                 DepartmentManager manager = departmentManagerMapper.findByUserId(req.getTargetUserId());
@@ -80,7 +101,35 @@ public class MessageService {
             }
         }
 
-        // 科室管理员 / 系统管理员：这里简单允许给任何人发消息
+        // 科室管理员：可以给本科室医生、以及近 10 天内在本科室就诊且已支付的患者发消息
+        if ("dept_manager".equals(senderRole)) {
+            DepartmentManager manager = departmentManagerMapper.findByUserId(createUserId);
+            if (manager == null) {
+                return ApiResponse.error(ErrorCodes.NO_PERMISSION, "科室管理员信息不存在");
+            }
+            if ("doctor".equals(targetRole)) {
+                Doctor doctor = doctorMapper.findById(req.getTargetUserId());
+                if (doctor == null || !manager.getDepartmentId().equals(doctor.getDepartmentId())) {
+                    return ApiResponse.error(ErrorCodes.NO_PERMISSION, "仅可向本科室医生发送消息");
+                }
+            } else if ("patient".equals(targetRole)) {
+                int count = registrationMapper.countPaidAfterByPatientAndDepartment(
+                        req.getTargetUserId(), manager.getDepartmentId(), cutoffDate);
+                if (count <= 0) {
+                    return ApiResponse.error(ErrorCodes.NO_PERMISSION,
+                            "仅可向近 10 天内在本科室就诊且支付成功的患者发送消息");
+                }
+            }
+            // 给管理员或其它角色发消息在此不强行限制
+        }
+
+        // 系统管理员：保持原来的宽松策略，可以向任何人发消息
+
+        // 对话10天未活跃则禁发：找到双方最近一条消息时间
+        LocalDateTime lastMsgTime = messageMapper.findLastMessageTime(createUserId, req.getTargetUserId());
+        if (lastMsgTime != null && lastMsgTime.isBefore(cutoffMsgTime)) {
+            return ApiResponse.error(ErrorCodes.NO_PERMISSION, "双方超过 10 天未对话，权限已过期，如需继续请重新挂号或联系管理员");
+        }
 
         Message message = new Message();
         message.setMessageId(IdGenerator.newMessageId());

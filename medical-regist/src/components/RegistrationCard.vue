@@ -11,8 +11,8 @@
         <option disabled value="">请选择时段</option>
         <option
           v-for="slot in timeSlots"
-          :key="slot"
-          :value="slot"
+          :key="slot.slotId"
+          :value="slot.slotId"
         >
           {{ formatSlot(slot) }}
         </option>
@@ -48,14 +48,13 @@ export default {
   },
   methods: {
     formatSlot (slot) {
-      // 统一映射为更直观的文字
-      const map = {
-        'AM-1': '上午 09:00-10:00',
-        'AM-2': '上午 10:00-11:00',
-        'PM-1': '下午 14:00-15:00',
-        'PM-2': '下午 15:00-16:00'
+      // 后端已经返回了人类可读的 label 和起止时间
+      if (!slot) return ''
+      if (slot.label) return slot.label + `（剩余 ${slot.remain}）`
+      if (slot.startTime && slot.endTime) {
+        return `${slot.startTime}-${slot.endTime}（剩余 ${slot.remain}）`
       }
-      return map[slot] || slot
+      return `剩余 ${slot.remain}`
     },
     handleRegister () {
       if (!this.timeSlots || !this.timeSlots.length) {
@@ -66,7 +65,8 @@ export default {
         alert('请先选择就诊时段')
         return
       }
-      this.$emit('register', this.selectedSlot)
+      const chosen = this.timeSlots.find(s => s.slotId === this.selectedSlot)
+      this.$emit('register', chosen)
     }
   }
 }

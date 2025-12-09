@@ -32,6 +32,7 @@
             <th>日期</th>
             <th>时段</th>
             <th>科室</th>
+            <th>地点</th>
             <th>医生</th>
             <th>费用</th>
             <th>状态</th>
@@ -42,8 +43,9 @@
           <tr v-for="item in registrations" :key="item.regId">
             <td>{{ item.regDate }}</td>
             <td>{{ formatSlot(item.regTimeSlot) }}</td>
-            <td>{{ item.departmentId }}</td>
-            <td>{{ item.doctorId }}</td>
+            <td>{{ item.departmentName || item.departmentId }}</td>
+            <td>{{ item.departmentLocation || '-' }}</td>
+            <td>{{ item.doctorName || item.doctorId }}</td>
             <td>¥ {{ (3000 / 100).toFixed(2) }}</td>
             <td>{{ item.regStatus }} / {{ item.payStatus }}</td>
             <td>
@@ -72,6 +74,7 @@
             <th>日期</th>
             <th>时段</th>
             <th>科室</th>
+            <th>地点</th>
             <th>{{ isPatient ? '医生' : '患者' }}</th>
             <th>诊断</th>
             <th>医嘱</th>
@@ -81,7 +84,8 @@
           <tr v-for="item in medicalRecords" :key="item.recordId">
             <td>{{ item.regDate }}</td>
             <td>{{ formatSlot(item.regTimeSlot) }}</td>
-            <td>{{ item.departmentId }}</td>
+            <td>{{ item.departmentName || item.departmentId }}</td>
+            <td>{{ item.departmentLocation || '-' }}</td>
             <td>{{ isPatient ? item.doctorName : item.patientName }}</td>
             <td>{{ item.diagnosis }}</td>
             <td>{{ item.advice }}</td>

@@ -1,10 +1,7 @@
 package com.medical.backend.mapper;
 
 import com.medical.backend.model.DoctorTimeSlot;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -18,7 +15,7 @@ public interface DoctorTimeSlotMapper {
             FROM doctor_time_slot
             WHERE slot_date = #{date}
               AND department_id = #{departmentId}
-              AND (#{doctorId} IS NULL OR doctor_id = #{doctorId})
+              AND (#{doctorId,jdbcType=VARCHAR} IS NULL OR doctor_id = #{doctorId,jdbcType=VARCHAR})
             """)
     List<DoctorTimeSlot> findSlots(@Param("date") LocalDate date,
                                    @Param("departmentId") String departmentId,
@@ -34,11 +31,28 @@ public interface DoctorTimeSlotMapper {
     List<DoctorTimeSlot> findByDoctorAndDate(@Param("doctorId") String doctorId,
                                              @Param("date") LocalDate date);
 
+    @Select("""
+            SELECT slot_id, doctor_id, department_id, slot_date, time_slot, start_time, end_time,
+                   capacity, booked_count, status, note, create_time, update_time
+            FROM doctor_time_slot
+            WHERE slot_id = #{slotId}
+            """)
+    DoctorTimeSlot findById(@Param("slotId") String slotId);
+
     @Update("""
             UPDATE doctor_time_slot
             SET booked_count = booked_count + #{delta}
             WHERE slot_id = #{slotId}
             """)
     int changeBookedCount(@Param("slotId") String slotId, @Param("delta") int delta);
-}
 
+    @Insert("""
+            INSERT INTO doctor_time_slot (slot_id, doctor_id, department_id, slot_date, time_slot,
+                                          start_time, end_time, capacity, booked_count, status, note,
+                                          create_time, update_time)
+            VALUES (#{slotId}, #{doctorId}, #{departmentId}, #{slotDate}, #{timeSlot},
+                    #{startTime}, #{endTime}, #{capacity}, #{bookedCount}, #{status}, #{note},
+                    #{createTime}, #{updateTime})
+            """)
+    int insert(DoctorTimeSlot slot);
+}
