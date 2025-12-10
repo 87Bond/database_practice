@@ -11,7 +11,7 @@ public interface DoctorTimeSlotMapper {
 
     @Select("""
             SELECT slot_id, doctor_id, department_id, slot_date, time_slot, start_time, end_time,
-                   capacity, booked_count, status, note, create_time, update_time
+                   capacity, booked_count, fee, status, note, create_time, update_time
             FROM doctor_time_slot
             WHERE slot_date = #{date}
               AND department_id = #{departmentId}
@@ -23,7 +23,7 @@ public interface DoctorTimeSlotMapper {
 
     @Select("""
             SELECT slot_id, doctor_id, department_id, slot_date, time_slot, start_time, end_time,
-                   capacity, booked_count, status, note, create_time, update_time
+                   capacity, booked_count, fee, status, note, create_time, update_time
             FROM doctor_time_slot
             WHERE doctor_id = #{doctorId}
               AND slot_date = #{date}
@@ -33,7 +33,7 @@ public interface DoctorTimeSlotMapper {
 
     @Select("""
             SELECT slot_id, doctor_id, department_id, slot_date, time_slot, start_time, end_time,
-                   capacity, booked_count, status, note, create_time, update_time
+                   capacity, booked_count, fee, status, note, create_time, update_time
             FROM doctor_time_slot
             WHERE slot_id = #{slotId}
             """)
@@ -48,10 +48,10 @@ public interface DoctorTimeSlotMapper {
 
     @Insert("""
             INSERT INTO doctor_time_slot (slot_id, doctor_id, department_id, slot_date, time_slot,
-                                          start_time, end_time, capacity, booked_count, status, note,
+                                          start_time, end_time, capacity, booked_count, fee, status, note,
                                           create_time, update_time)
             VALUES (#{slotId}, #{doctorId}, #{departmentId}, #{slotDate}, #{timeSlot},
-                    #{startTime}, #{endTime}, #{capacity}, #{bookedCount}, #{status}, #{note},
+                    #{startTime}, #{endTime}, #{capacity}, #{bookedCount}, #{fee}, #{status}, #{note},
                     #{createTime}, #{updateTime})
             """)
     int insert(DoctorTimeSlot slot);

@@ -51,6 +51,7 @@ public class RegistrationService {
                         "label", s.getStartTime() != null && s.getEndTime() != null
                                 ? s.getStartTime().toString().substring(0, 5) + "-" + s.getEndTime().toString().substring(0, 5)
                                 : s.getTimeSlot(),
+                        "fee", s.getFee(),
                         "remain", s.getCapacity() - s.getBookedCount()))
                 .collect(Collectors.toList());
         Map<String, Object> data = Map.of(
@@ -132,7 +133,8 @@ public class RegistrationService {
         }
         registration.setRegTimeSlot(regTimeLabel);
         registration.setRegStatus("Booked");
-        registration.setRegFee(3000);
+        int fee = targetSlot.getFee() != null ? targetSlot.getFee() : 3000;
+        registration.setRegFee(fee);
         registration.setPayStatus("Unpaid");
         registration.setCreateTime(now);
         registration.setSlotId(targetSlot.getSlotId());
@@ -143,7 +145,7 @@ public class RegistrationService {
         Map<String, Object> data = Map.of(
                 "regId", regId,
                 "regStatus", "Booked",
-                "regFee", 3000,
+                "regFee", fee,
                 "payStatus", "Unpaid",
                 "createTime", now.toString()
         );
@@ -233,6 +235,7 @@ public class RegistrationService {
             dto.setDepartmentLocation(r.getDepartmentLocation());
             dto.setDoctorId(r.getDoctorId());
             dto.setDoctorName(r.getDoctorName());
+            dto.setRegFee(r.getRegFee());
             dto.setRegStatus(r.getRegStatus());
             dto.setPayStatus(r.getPayStatus());
             return dto;

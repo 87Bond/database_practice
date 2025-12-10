@@ -23,6 +23,10 @@ public class DeptManagerDtos {
         private LocalTime startTime;
         private LocalTime endTime;
         private Integer capacity;
+        /**
+         * 挂号费用（单位：元），后台会换算成分存入数据库
+         */
+        private Integer feeYuan;
         private String note;
     }
 
@@ -36,6 +40,8 @@ public class DeptManagerDtos {
         private LocalTime endTime;
         private Integer capacity;
         private Integer bookedCount;
+        // 号源费用（单位：分）
+        private Integer fee;
         private String status;
         private String note;
     }
@@ -53,4 +59,3 @@ public class DeptManagerDtos {
         private String payStatus;
     }
 }
-

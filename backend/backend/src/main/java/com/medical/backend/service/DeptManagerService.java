@@ -66,8 +66,9 @@ public class DeptManagerService {
             return ApiResponse.error(ErrorCodes.NO_PERMISSION, "只能为本科室医生分配号源");
         }
         if (req.getSlotDate() == null || req.getStartTime() == null || req.getEndTime() == null
-                || req.getCapacity() == null || req.getCapacity() <= 0) {
-            return ApiResponse.error(ErrorCodes.PARAM_ERROR, "请填写完整的日期、时间段和号源数量");
+                || req.getCapacity() == null || req.getCapacity() <= 0
+                || req.getFeeYuan() == null || req.getFeeYuan() <= 0) {
+            return ApiResponse.error(ErrorCodes.PARAM_ERROR, "请填写完整的日期、时间段、号源数量和挂号费用");
         }
         if (!req.getStartTime().isBefore(req.getEndTime())) {
             return ApiResponse.error(ErrorCodes.PARAM_ERROR, "开始时间必须早于结束时间");
@@ -98,6 +99,8 @@ public class DeptManagerService {
         slot.setEndTime(req.getEndTime());
         slot.setCapacity(req.getCapacity());
         slot.setBookedCount(0);
+        // 将传入的“元”换算为“分”存储
+        slot.setFee(req.getFeeYuan() * 100);
         slot.setStatus("OPEN");
         slot.setNote(req.getNote());
         LocalDateTime now = LocalDateTime.now();
@@ -129,6 +132,7 @@ public class DeptManagerService {
             view.setEndTime(s.getEndTime());
             view.setCapacity(s.getCapacity());
             view.setBookedCount(s.getBookedCount());
+            view.setFee(s.getFee());
             view.setStatus(s.getStatus());
             view.setNote(s.getNote());
             return view;

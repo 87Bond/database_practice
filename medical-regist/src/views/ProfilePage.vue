@@ -46,7 +46,7 @@
             <td>{{ item.departmentName || item.departmentId }}</td>
             <td>{{ item.departmentLocation || '-' }}</td>
             <td>{{ item.doctorName || item.doctorId }}</td>
-            <td>¥ {{ (3000 / 100).toFixed(2) }}</td>
+            <td>¥ {{ ((item.regFee || 0) / 100).toFixed(2) }}</td>
             <td>{{ item.regStatus }} / {{ item.payStatus }}</td>
             <td>
               <button

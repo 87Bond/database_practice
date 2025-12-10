@@ -129,7 +129,6 @@ public interface RegistrationMapper {
             WHERE patient_id = #{patientId}
               AND doctor_id = #{doctorId}
               AND pay_status = 'Paid'
-              AND reg_date >= #{cutoff,jdbcType=DATE}
             """)
     int countPaidAfterByPatientAndDoctor(@Param("patientId") String patientId,
                                          @Param("doctorId") String doctorId,
@@ -141,7 +140,6 @@ public interface RegistrationMapper {
             WHERE patient_id = #{patientId}
               AND doctor_id = #{doctorId}
               AND pay_status = 'Paid'
-              AND reg_date >= #{cutoff,jdbcType=DATE}
             """)
     int countPaidAfterByDoctorAndPatient(@Param("doctorId") String doctorId,
                                          @Param("patientId") String patientId,
@@ -153,7 +151,6 @@ public interface RegistrationMapper {
             WHERE patient_id = #{patientId}
               AND department_id = #{departmentId}
               AND pay_status = 'Paid'
-              AND reg_date >= #{cutoff,jdbcType=DATE}
             """)
     int countPaidAfterByPatientAndDepartment(@Param("patientId") String patientId,
                                              @Param("departmentId") String departmentId,

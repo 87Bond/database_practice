@@ -56,6 +56,8 @@ CREATE TABLE IF NOT EXISTS doctor_time_slot (
     end_time       TIME NOT NULL,
     capacity       INTEGER NOT NULL,
     booked_count   INTEGER NOT NULL DEFAULT 0,
+    -- 号源对应的挂号费用（单位：分，3000=¥30.00）
+    fee            INTEGER NOT NULL DEFAULT 3000,
     status         VARCHAR(20) NOT NULL,
     note           TEXT,
     create_time    TIMESTAMP NOT NULL DEFAULT NOW(),

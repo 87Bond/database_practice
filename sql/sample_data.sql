@@ -397,37 +397,37 @@ ON CONFLICT (user_id) DO NOTHING;
 
 -- DR0001 明天的三个号源时段（内科）
 INSERT INTO doctor_time_slot (slot_id, doctor_id, department_id, slot_date, time_slot,
-                              start_time, end_time, capacity, booked_count, status, note)
+                              start_time, end_time, capacity, booked_count, fee, status, note)
 VALUES ('SLOT001', 'DR0001', 'D001', CURRENT_DATE + 1, 'AM-1',
-        TIME '09:00', TIME '10:00', 5, 0, 'OPEN', '上午第一段'),
+        TIME '09:00', TIME '10:00', 5, 0, 3000, 'OPEN', '上午第一段'),
        ('SLOT002', 'DR0001', 'D001', CURRENT_DATE + 1, 'AM-2',
-        TIME '10:00', TIME '11:00', 5, 0, 'OPEN', '上午第二段'),
+        TIME '10:00', TIME '11:00', 5, 0, 3000, 'OPEN', '上午第二段'),
        ('SLOT003', 'DR0001', 'D001', CURRENT_DATE + 1, 'PM-1',
-        TIME '14:00', TIME '15:00', 5, 0, 'OPEN', '下午第一段')
+        TIME '14:00', TIME '15:00', 5, 0, 3000, 'OPEN', '下午第一段')
 ON CONFLICT (slot_id) DO NOTHING;
 
 -- DR0002 后天的两个号源时段（外科）
 INSERT INTO doctor_time_slot (slot_id, doctor_id, department_id, slot_date, time_slot,
-                              start_time, end_time, capacity, booked_count, status, note)
+                              start_time, end_time, capacity, booked_count, fee, status, note)
 VALUES ('SLOT004', 'DR0002', 'D002', CURRENT_DATE + 2, 'AM-1',
-        TIME '09:00', TIME '10:00', 3, 0, 'OPEN', '外科上午一段'),
+        TIME '09:00', TIME '10:00', 3, 0, 3200, 'OPEN', '外科上午一段'),
        ('SLOT005', 'DR0002', 'D002', CURRENT_DATE + 2, 'PM-1',
-        TIME '14:00', TIME '15:00', 4, 0, 'OPEN', '外科下午一段')
+        TIME '14:00', TIME '15:00', 4, 0, 3200, 'OPEN', '外科下午一段')
 ON CONFLICT (slot_id) DO NOTHING;
 
 -- 额外号源，保证数量更多
 INSERT INTO doctor_time_slot (slot_id, doctor_id, department_id, slot_date, time_slot,
-                              start_time, end_time, capacity, booked_count, status, note)
+                              start_time, end_time, capacity, booked_count, fee, status, note)
 VALUES ('SLOT006', 'DR0003', 'D003', CURRENT_DATE + 1, 'AM-1',
-        TIME '09:00', TIME '10:00', 6, 0, 'OPEN', '儿科上午一段'),
+        TIME '09:00', TIME '10:00', 6, 0, 2800, 'OPEN', '儿科上午一段'),
        ('SLOT007', 'DR0004', 'D004', CURRENT_DATE + 1, 'AM-1',
-        TIME '09:00', TIME '10:00', 6, 0, 'OPEN', '妇产科上午一段'),
+        TIME '09:00', TIME '10:00', 6, 0, 3000, 'OPEN', '妇产科上午一段'),
        ('SLOT008', 'DR0005', 'D005', CURRENT_DATE + 3, 'AM-1',
-        TIME '09:00', TIME '10:00', 4, 0, 'OPEN', '眼科上午一段'),
+        TIME '09:00', TIME '10:00', 4, 0, 2600, 'OPEN', '眼科上午一段'),
        ('SLOT009', 'DR0006', 'D006', CURRENT_DATE + 3, 'PM-1',
-        TIME '14:00', TIME '15:00', 4, 0, 'OPEN', '耳鼻喉下午一段'),
+        TIME '14:00', TIME '15:00', 4, 0, 2600, 'OPEN', '耳鼻喉下午一段'),
        ('SLOT010', 'DR0007', 'D007', CURRENT_DATE + 4, 'AM-1',
-        TIME '09:00', TIME '10:00', 5, 0, 'OPEN', '皮肤科上午一段')
+        TIME '09:00', TIME '10:00', 5, 0, 2400, 'OPEN', '皮肤科上午一段')
 ON CONFLICT (slot_id) DO NOTHING;
 
 -- =========================

@@ -132,21 +132,28 @@
 - 发件箱：`GET /api/messages?box=outbox`
 - 作废消息：`POST /api/messages/{messageId}/invalidate`
 
-**消息权限规则概括（含 10 天时效 + 需已支付）：**
+**消息权限规则概括（需已支付 + 10 天无会话则过期）：**
 
 - 患者：
-  - 仅能给“已支付且 10 天内就诊的医生 / 该科室管理员”发消息。
+  - 仅能给“曾经存在已支付挂号记录的就诊医生 / 对应科室管理员”发消息；
+  - 前置条件是至少有一条已支付的挂号记录（不限日期）。
 - 医生：
-  - 可给“已支付且 10 天内挂号的患者”发消息；
+  - 可给“曾在自己名下有已支付挂号记录的患者”发消息；
   - 可给本科室的科室管理员发送消息；
   - 可给系统管理员发送消息。
 - 科室管理员：
   - 可给本科室医生；
-  - 可给近 10 天在本科室就诊且已支付的患者。
+  - 可给“在本科室有已支付挂号记录的患者”发消息。
 - 系统管理员：
   - 可向任何用户发送系统通知。
 
-> 超过 10 天的历史会话仍可查看，但发送时会被拒绝；患者未支付的挂号不会开启与医生/科室管理员的聊天权限。
+除此之外，系统还维护“会话最近活跃时间”：
+
+- 对任意双方 A/B，如果连续 **10 天没有任何一方发送新消息**，再尝试发送时会被拒绝，
+  提示“双方超过 10 天未对话，权限已过期，如需继续请重新挂号或联系管理员”；
+- 历史消息记录仍然可以查看，只是不能再新增消息。
+
+> 患者未支付的挂号不会开启与医生/科室管理员的聊天权限。
 
 系统通过查询 `registration`、`doctor`、`department_manager`、`system_user` 等表，确保消息发送遵守上述约束。
 
@@ -178,7 +185,8 @@
   - `user_id`, `work_phone`
 - `doctor_time_slot`：医生排班与号源
   - `slot_id`, `doctor_id`, `department_id`, `slot_date`, `time_slot`,
-    `capacity`, `booked_count`, `status`, `note`
+    `start_time`, `end_time`, `capacity`, `booked_count`,
+    `fee`（该号源挂号费用，单位分）、`status`, `note`
 - `registration`：挂号记录
   - `reg_id`, `patient_id`, `doctor_id`, `department_id`,
     `reg_date`, `reg_time_slot`, `reg_status`, `reg_fee`, `pay_status`, `slot_id`

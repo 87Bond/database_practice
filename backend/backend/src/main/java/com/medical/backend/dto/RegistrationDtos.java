@@ -32,6 +32,10 @@ public class RegistrationDtos {
         private String departmentLocation;
         private String doctorId;
         private String doctorName;
+        /**
+         * 挂号费用（单位：分）
+         */
+        private Integer regFee;
         private String regStatus;
         private String payStatus;
     }

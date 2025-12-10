@@ -61,6 +61,17 @@
         <input v-model.number="slotForm.capacity" type="number" min="1" class="input">
       </div>
       <div class="form-row">
+        <label>挂号费用：</label>
+        <input
+          v-model.number="slotForm.feeYuan"
+          type="number"
+          min="1"
+          step="1"
+          class="input"
+          placeholder="单位：元，例如 30"
+        >
+      </div>
+      <div class="form-row">
         <label>备注：</label>
         <input v-model="slotForm.note" type="text" class="input" placeholder="可选，例如 上午门诊">
       </div>
@@ -78,6 +89,7 @@
             <th>医生</th>
             <th>日期</th>
             <th>时间段</th>
+            <th>费用（元）</th>
             <th>容量</th>
             <th>已预约</th>
             <th>状态</th>
@@ -89,6 +101,7 @@
             <td>{{ s.doctorName }}（{{ s.doctorId }}）</td>
             <td>{{ s.slotDate }}</td>
             <td>{{ formatSlotTime(s) }}</td>
+            <td>{{ s.fee != null ? (s.fee / 100).toFixed(2) : '-' }}</td>
             <td>{{ s.capacity }}</td>
             <td>{{ s.bookedCount }}</td>
             <td>{{ s.status }}</td>
@@ -175,6 +188,7 @@ export default {
         startTime: '',
         endTime: '',
         capacity: 1,
+        feeYuan: null,
         note: ''
       },
       slotQueryDate: '',
@@ -227,8 +241,8 @@ export default {
     },
     async createSlot () {
       const f = this.slotForm
-      if (!f.doctorId || !f.slotDate || !f.startTime || !f.endTime || !f.capacity) {
-        alert('请完整填写医生、日期、起止时间和号源数量')
+      if (!f.doctorId || !f.slotDate || !f.startTime || !f.endTime || !f.capacity || !f.feeYuan) {
+        alert('请完整填写医生、日期、起止时间、号源数量和挂号费用')
         return
       }
       try {
@@ -391,4 +405,3 @@ export default {
   color: #777;
 }
 </style>
-

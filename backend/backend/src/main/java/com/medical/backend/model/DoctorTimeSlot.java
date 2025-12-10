@@ -17,9 +17,10 @@ public class DoctorTimeSlot {
     private LocalTime endTime;
     private Integer capacity;
     private Integer bookedCount;
+    // 单个号源对应的挂号费用（单位：分）
+    private Integer fee;
     private String status;
     private String note;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 }
-
