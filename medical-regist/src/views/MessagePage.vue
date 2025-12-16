@@ -1,10 +1,16 @@
 <template>
   <div class="message-page">
-    <h2>消息中心</h2>
+    <div class="page-header">
+      <div>
+        <p class="eyebrow">消息中心</p>
+        <h2>和医生、患者或管理员高效沟通</h2>
+      </div>
+      <div class="pill">支持会话 + 系统通知</div>
+    </div>
 
     <div class="message-layout">
       <!-- 左侧会话列表 -->
-      <div class="conversation-sidebar">
+      <div class="conversation-sidebar card">
         <div
           v-for="conv in conversations"
           :key="conv.contactUserId"
@@ -33,7 +39,7 @@
 
       <!-- 右侧聊天 + 系统消息 -->
       <div class="message-main">
-        <div v-if="canSend" class="send-box">
+        <div v-if="canSend" class="send-box card">
           <h3 v-if="isPatient">给就诊医生发消息</h3>
           <h3 v-else-if="isDoctor">给患者 / 管理员发消息</h3>
           <h3 v-else>发送系统消息</h3>
@@ -57,7 +63,7 @@
           <button class="btn" @click="sendMessage">发送</button>
         </div>
 
-        <div v-if="canSend" class="chat-box">
+        <div v-if="canSend" class="chat-box card">
           <h3 class="chat-title">
             对话记录
             <span v-if="currentContactName">（当前对象：{{ currentContactName }}）</span>
@@ -90,7 +96,7 @@
           </div>
         </div>
 
-        <div class="msg-list">
+        <div class="msg-list card">
           <h3>系统消息</h3>
           <MessageCard
             v-for="item in msgList"
@@ -292,171 +298,224 @@ export default {
 </script>
 
 <style scoped>
-.message-page h2 {
-  color: #2f5496;
-  margin-bottom: 20px;
-}
-.message-layout {
+.page-header {
   display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  gap: 12px;
 }
+
+.eyebrow {
+  color: var(--primary-dark);
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  margin-bottom: 6px;
+}
+
+.page-header h2 {
+  color: var(--text-main);
+}
+
+.pill {
+  background: rgba(59, 110, 227, 0.08);
+  color: var(--primary-dark);
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-weight: 600;
+  border: 1px solid rgba(59, 110, 227, 0.2);
+}
+
+.message-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 18px;
+}
+
 .conversation-sidebar {
-  width: 260px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  margin-right: 20px;
-  max-height: 500px;
+  max-height: 520px;
   overflow-y: auto;
-  background-color: #fafafa;
+  padding: 4px 0;
 }
+
 .conv-item {
   display: flex;
-  padding: 10px 12px;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 12px 16px;
   cursor: pointer;
+  border-radius: 12px;
+  margin: 6px 10px;
+  transition: all 0.2s ease;
 }
-.conv-item:last-child {
-  border-bottom: none;
+
+.conv-item.active,
+.conv-item:hover {
+  background: linear-gradient(90deg, rgba(59, 110, 227, 0.12), rgba(90, 216, 255, 0.08));
+  box-shadow: 0 10px 22px rgba(59, 110, 227, 0.12);
 }
-.conv-item.active {
-  background-color: #e6f0ff;
-}
+
 .conv-avatar {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background-color: #2f5496;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 10px;
+  margin-right: 12px;
   font-size: 16px;
+  font-weight: 700;
 }
+
 .conv-main {
   flex: 1;
 }
+
 .conv-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
   font-size: 13px;
+  color: var(--text-main);
 }
+
 .conv-name {
-  font-weight: bold;
-  color: #333;
+  font-weight: 700;
 }
-.conv-id {
-  font-weight: normal;
-  color: #999;
-  font-size: 12px;
-}
+
 .conv-time {
-  color: #999;
+  color: var(--text-muted);
   font-size: 12px;
 }
+
 .conv-preview {
-  font-size: 12px;
-  color: #666;
+  font-size: 13px;
+  color: var(--text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 .message-main {
-  flex: 1;
+  display: grid;
+  gap: 16px;
 }
+
 .send-box {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 15px 20px;
-  margin-bottom: 20px;
+  display: grid;
+  gap: 12px;
 }
+
 .form-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
+  display: grid;
+  gap: 6px;
 }
+
 .form-item label {
-  width: 80px;
+  color: var(--text-muted);
+  font-weight: 600;
 }
+
 .input,
 .select,
 .textarea {
-  flex: 1;
-  padding: 6px 10px;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid rgba(59, 110, 227, 0.18);
+  border-radius: 10px;
+  background: #f8faff;
 }
+
 .textarea {
   resize: vertical;
 }
+
 .btn {
-  background-color: #2f5496;
+  justify-self: flex-start;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   color: #fff;
   border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
   cursor: pointer;
+  box-shadow: 0 8px 20px rgba(59, 110, 227, 0.3);
 }
+
 .btn:hover {
-  background-color: #1f3a68;
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(39, 76, 159, 0.35);
 }
+
 .chat-box {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 15px 20px;
-  margin: 20px 0;
+  display: grid;
+  gap: 10px;
 }
+
 .chat-title {
-  margin-bottom: 10px;
+  margin-bottom: 2px;
 }
+
 .chat-list {
   max-height: 260px;
   overflow-y: auto;
+  display: grid;
+  gap: 12px;
+  padding-right: 6px;
 }
+
 .chat-item {
-  margin-bottom: 10px;
   display: flex;
   flex-direction: column;
+  gap: 6px;
 }
+
 .chat-item.from-me {
   align-items: flex-end;
 }
+
 .chat-item.from-other {
   align-items: flex-start;
 }
+
 .chat-meta {
   font-size: 12px;
-  color: #999;
-  margin-bottom: 2px;
+  color: var(--text-muted);
+  display: flex;
+  gap: 8px;
 }
-.chat-sender {
-  margin-right: 8px;
-}
+
 .chat-title-text {
-  font-weight: bold;
-  color: #2f5496;
-  margin-bottom: 2px;
+  font-weight: 700;
+  color: var(--primary-dark);
 }
+
 .chat-content {
-  max-width: 60%;
-  background-color: #f5f5f5;
-  border-radius: 6px;
-  padding: 6px 10px;
+  max-width: 70%;
+  background: #f1f5ff;
+  border-radius: 12px;
+  padding: 10px 12px;
   font-size: 14px;
-  line-height: 1.4;
+  line-height: 1.5;
+  box-shadow: 0 6px 14px rgba(59, 110, 227, 0.14);
 }
+
 .chat-item.from-me .chat-content {
-  background-color: #2f5496;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   color: #fff;
+  box-shadow: 0 8px 18px rgba(39, 76, 159, 0.22);
 }
-.msg-list {
-  margin-top: 20px;
+
+.msg-list h3 {
+  margin-bottom: 8px;
 }
+
 .empty-tip {
-  margin-top: 10px;
-  color: #777;
+  margin-top: 8px;
+  color: var(--text-muted);
 }
+
 .sidebar-empty {
   padding: 10px;
+  color: var(--text-muted);
 }
 </style>
