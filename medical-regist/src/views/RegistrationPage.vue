@@ -1,22 +1,32 @@
 <template>
   <div class="registration-page">
-    <h2>门诊挂号</h2>
-    <div class="dept-select">
-      <label>选择科室：</label>
-      <select v-model="selectedDeptId" class="select">
-        <option value="">请选择科室</option>
-        <option v-for="dept in departmentList" :key="dept.departmentId" :value="dept.departmentId">
-          {{ dept.departmentName }}（{{ dept.location }}）
-        </option>
-      </select>
+    <div class="header">
+      <div>
+        <p class="eyebrow">门诊挂号</p>
+        <h2>选择科室与日期，快速预约心仪专家</h2>
+      </div>
+      <div class="pill">今日号源实时更新</div>
     </div>
-    <div class="date-select">
-      <label>就诊日期：</label>
-      <input v-model="selectedDate" type="date" class="select">
+
+    <div class="filter card">
+      <div class="filter-group">
+        <label>选择科室</label>
+        <select v-model="selectedDeptId" class="select">
+          <option value="">请选择科室</option>
+          <option v-for="dept in departmentList" :key="dept.departmentId" :value="dept.departmentId">
+            {{ dept.departmentName }}（{{ dept.location }}）
+          </option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>就诊日期</label>
+        <input v-model="selectedDate" type="date" class="select">
+      </div>
+      <div class="filter-hint">选择后自动为你展示对应科室可预约医生</div>
     </div>
     <!-- 挂号卡片列表 -->
     <div class="card-list">
-      <RegistrationCard 
+      <RegistrationCard
         v-for="doctor in doctorList"
         :key="doctor.userId"
         :doctorName="doctor.doctorName"
@@ -131,27 +141,83 @@ export default {
 </script>
 
 <style scoped>
-.registration-page h2 {
-  color: #2f5496;
-  margin-bottom: 20px;
+.registration-page {
+  display: grid;
+  gap: 18px;
 }
-.dept-select {
-  margin-bottom: 20px;
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
 }
-.date-select {
-  margin-bottom: 20px;
+
+.eyebrow {
+  color: var(--primary-dark);
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  margin-bottom: 6px;
 }
+
+.header h2 {
+  font-size: 22px;
+  color: var(--text-main);
+}
+
+.pill {
+  background: rgba(59, 110, 227, 0.08);
+  color: var(--primary-dark);
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-weight: 600;
+  border: 1px solid rgba(59, 110, 227, 0.2);
+}
+
+.filter {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  align-items: flex-end;
+}
+
+.filter-group {
+  display: grid;
+  gap: 8px;
+}
+
+.filter-group label {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
 .select {
-  padding: 8px;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-  margin-left: 10px;
+  padding: 12px;
+  border: 1px solid rgba(59, 110, 227, 0.2);
+  border-radius: 12px;
+  background: #f8faff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
+
+.select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(59, 110, 227, 0.2);
+}
+
+.filter-hint {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
 .card-list {
-  margin-top: 20px;
+  margin-top: 4px;
+  display: grid;
+  gap: 16px;
 }
+
 .empty-tip {
   margin-top: 10px;
-  color: #777;
+  color: var(--text-muted);
 }
 </style>

@@ -1,7 +1,13 @@
 <template>
   <div class="profile-page">
-    <h2>个人中心</h2>
-    <div class="profile-info">
+    <div class="header">
+      <div>
+        <p class="eyebrow">个人中心</p>
+        <h2>管理账户、预约与就诊记录</h2>
+      </div>
+      <div class="pill" v-if="isPatient">余额实时刷新</div>
+    </div>
+    <div class="profile-info card">
       <div class="avatar">
         <div class="avatar-circle">{{ avatarText }}</div>
       </div>
@@ -11,20 +17,20 @@
         <p class="id-card">角色：{{ userInfo.role }}</p>
       </div>
     </div>
-    <div class="profile-menu">
+    <div class="profile-menu card">
       <div class="menu-item" @click="showRegistrations">我的挂号记录</div>
       <div class="menu-item" @click="showMedicalRecords">我的就诊记录</div>
       <div class="menu-item" @click="changePassword">修改密码</div>
       <div class="menu-item" @click="logout">退出登录</div>
     </div>
-    <div class="balance-panel" v-if="isPatient">
+    <div class="balance-panel card" v-if="isPatient">
       <p>账户余额：¥ {{ (balance / 100).toFixed(2) }}</p>
       <div class="recharge">
         <input v-model.number="rechargeAmount" type="number" min="0" step="0.01" placeholder="充值金额（元）" />
         <button @click="recharge">充值</button>
       </div>
     </div>
-    <div class="reg-list" v-if="registrations.length">
+    <div class="reg-list card" v-if="registrations.length">
       <h3>挂号记录</h3>
       <table class="table">
         <thead>
@@ -66,7 +72,7 @@
         </tbody>
       </table>
     </div>
-    <div class="record-list" v-if="medicalRecords.length">
+    <div class="record-list card" v-if="medicalRecords.length">
       <h3>就诊记录</h3>
       <table class="table">
         <thead>
@@ -293,85 +299,143 @@ export default {
 </script>
 
 <style scoped>
-.profile-page h2 {
-  color: #2f5496;
-  margin-bottom: 20px;
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
 }
+
+.eyebrow {
+  color: var(--primary-dark);
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  margin-bottom: 6px;
+}
+
+.header h2 {
+  color: var(--text-main);
+}
+
+.pill {
+  background: rgba(59, 110, 227, 0.08);
+  color: var(--primary-dark);
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-weight: 600;
+  border: 1px solid rgba(59, 110, 227, 0.2);
+}
+
 .profile-info {
   display: flex;
   align-items: center;
-  margin-bottom: 30px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #e0e0e0;
+  gap: 20px;
 }
-.avatar {
-  margin-right: 20px;
-}
+
 .avatar-circle {
-  width: 80px;
-  height: 80px;
+  width: 90px;
+  height: 90px;
   border-radius: 50%;
-  background-color: #2f5496;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 32px;
-  font-weight: bold;
+  font-size: 34px;
+  font-weight: 800;
+  box-shadow: 0 10px 20px rgba(59, 110, 227, 0.26);
 }
+
 .user-info p {
-  margin-bottom: 8px;
-  color: #333;
+  margin-bottom: 6px;
+  color: var(--text-main);
 }
+
 .profile-menu {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
+  margin-top: 16px;
 }
+
 .menu-item {
   padding: 15px 20px;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid rgba(59, 110, 227, 0.08);
   cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease;
 }
+
 .menu-item:last-child {
   border-bottom: none;
 }
+
 .menu-item:hover {
-  background-color: #f5f5f5;
+  background: rgba(59, 110, 227, 0.06);
+  transform: translateY(-1px);
 }
-.reg-list {
-  margin-top: 20px;
-}
-.reg-list h3 {
-  margin-bottom: 10px;
-}
+
 .balance-panel {
-  margin-top: 20px;
+  margin-top: 14px;
+  display: grid;
+  gap: 8px;
+}
+
+.balance-panel .recharge {
+  display: flex;
+  gap: 8px;
+}
+
+.balance-panel input {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(59, 110, 227, 0.18);
+  background: #f8faff;
+}
+
+.balance-panel button {
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(59, 110, 227, 0.3);
+}
+
+.reg-list,
+.record-list {
+  margin-top: 16px;
+}
+
+.reg-list h3,
+.record-list h3 {
   margin-bottom: 10px;
 }
-.balance-panel .recharge {
-  margin-top: 8px;
-}
-.balance-panel input {
-  padding: 6px 10px;
-  border-radius: 4px;
-  border: 1px solid #e0e0e0;
-  margin-right: 8px;
-}
-.balance-panel button {
-  padding: 6px 12px;
-}
+
 .table {
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
 }
+
 .table th,
 .table td {
-  border: 1px solid #e0e0e0;
-  padding: 6px 8px;
+  border: 1px solid rgba(59, 110, 227, 0.12);
+  padding: 8px 10px;
   text-align: left;
 }
+
+.table th {
+  background: #f8faff;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
 .table button {
   margin-right: 6px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: none;
+  background: var(--primary);
+  color: #fff;
+  cursor: pointer;
 }
 </style>
