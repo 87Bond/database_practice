@@ -377,7 +377,7 @@ export default {
 
 .message-layout {
   display: grid;
-  grid-template-columns: 300px 1fr;
+  grid-template-columns: minmax(260px, 320px) 1fr;
   gap: 18px;
 }
 
@@ -608,7 +608,7 @@ export default {
 }
 
 .chat-content {
-  max-width: 70%;
+  max-width: min(70%, 480px);
   background: #f1f5ff;
   border-radius: 12px;
   padding: 10px 12px;
@@ -647,5 +647,58 @@ export default {
 
 .empty-icon {
   font-size: 28px;
+}
+
+@media (max-width: 1024px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .message-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .conversation-sidebar {
+    display: flex;
+    max-height: none;
+    overflow-x: auto;
+    padding: 10px 8px 6px;
+    gap: 10px;
+  }
+
+  .conv-item {
+    min-width: 240px;
+    margin: 0;
+  }
+
+  .message-main {
+    order: 2;
+  }
+}
+
+@media (max-width: 720px) {
+  .card {
+    padding: 14px;
+  }
+
+  .send-header,
+  .send-footer {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .send-footer {
+    justify-content: flex-start;
+  }
+
+  .chat-list {
+    max-height: none;
+  }
+
+  .chat-content {
+    max-width: 100%;
+    width: 100%;
+  }
 }
 </style>

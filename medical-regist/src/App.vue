@@ -380,4 +380,42 @@ textarea {
   background-color: rgba(255, 255, 255, 0.16);
   font-weight: 700;
 }
+
+@media (max-width: 900px) {
+  .nav-bar {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 12px 18px;
+  }
+
+  .nav-links {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .page-shell {
+    padding: 22px 14px 28px;
+  }
+
+  .page-container {
+    padding: 20px;
+    border-radius: 14px;
+  }
+}
+
+@media (max-width: 600px) {
+  .nav-links {
+    gap: 4px;
+  }
+
+  .nav-item {
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+
+  .page-container {
+    padding: 16px;
+  }
+}
 </style>
