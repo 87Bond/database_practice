@@ -14,9 +14,6 @@
         <router-link v-if="isLoggedIn && isDoctor" to="/doctor-panel" class="nav-item">医生端</router-link>
         <router-link v-if="isLoggedIn && isDeptManager" to="/dept-panel" class="nav-item">科室端</router-link>
         <router-link v-if="isLoggedIn && isAdmin" to="/admin-panel" class="nav-item">系统管理</router-link>
-        <button class="nav-toggle" @click="toggleTheme" :aria-label="`切换为${theme === 'light' ? '深色' : '浅色'}模式`">
-          <span class="toggle-icon" :class="theme">{{ theme === 'light' ? '🌞' : '🌙' }}</span>
-        </button>
       </div>
     </nav>
     <!-- 页面容器（路由匹配的页面会显示在这里） -->
@@ -107,40 +104,20 @@ export default {
   --accent: #5ad8ff;
   --bg: #f6f8fb;
   --card: #ffffff;
-  --panel: rgba(255, 255, 255, 0.86);
-  --field-bg: #f8faff;
   --text-main: #1f2d3d;
   --text-muted: #6b7b8c;
-  --shadow: 0 14px 36px rgba(38, 74, 164, 0.12);
-  --nav-start: #2f59d6;
-  --nav-end: #1c3f9b;
+  --shadow: 0 12px 30px rgba(38, 74, 164, 0.15);
   font-family: 'Inter', 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
   background: var(--bg);
   color: var(--text-main);
 }
 
-[data-theme='dark'] {
-  --primary: #5b8dff;
-  --primary-dark: #3553b3;
-  --accent: #74e1ff;
-  --bg: #0e1529;
-  --card: #111a30;
-  --panel: rgba(17, 26, 48, 0.92);
-  --field-bg: #16233f;
-  --text-main: #e6ecff;
-  --text-muted: #9db0d1;
-  --shadow: 0 14px 36px rgba(0, 0, 0, 0.45);
-  --nav-start: #0f1c3e;
-  --nav-end: #162851;
-}
-
 body {
   background: radial-gradient(circle at 10% 20%, rgba(90, 216, 255, 0.25), transparent 25%),
-    radial-gradient(circle at 90% 10%, rgba(59, 110, 227, 0.18), transparent 25%),
-    radial-gradient(circle at 80% 80%, rgba(39, 76, 159, 0.14), transparent 23%),
+    radial-gradient(circle at 90% 10%, rgba(59, 110, 227, 0.22), transparent 25%),
+    radial-gradient(circle at 80% 80%, rgba(39, 76, 159, 0.18), transparent 23%),
     var(--bg);
   min-height: 100vh;
-  transition: background 0.3s ease, color 0.3s ease;
 }
 
 #app {
@@ -152,7 +129,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: linear-gradient(90deg, var(--nav-start), var(--nav-end));
+  background: linear-gradient(90deg, #2f59d6, #1c3f9b);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -207,39 +184,16 @@ body {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
-.nav-toggle {
-  margin-left: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  background: rgba(255, 255, 255, 0.14);
-  color: #fff;
-  border-radius: 12px;
-  padding: 8px 12px;
-  cursor: pointer;
-  font-weight: 700;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-}
-
-.nav-toggle:hover {
-  transform: translateY(-1px);
-  background: rgba(255, 255, 255, 0.18);
-  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
-}
-
-.toggle-icon {
-  font-size: 14px;
-}
-
 /* 页面容器 */
 .page-shell {
-  padding: 36px 22px 44px;
+  padding: 26px 18px 36px;
 }
 
 .page-container {
-  padding: 32px;
-  max-width: 1280px;
+  padding: 28px;
+  max-width: 1200px;
   margin: 0 auto;
-  background: var(--panel);
+  background: rgba(255, 255, 255, 0.9);
   border-radius: 18px;
   box-shadow: var(--shadow);
   backdrop-filter: blur(6px);
@@ -252,32 +206,6 @@ body {
   box-shadow: var(--shadow);
   padding: 18px 20px;
   border: 1px solid rgba(59, 110, 227, 0.08);
-}
-
-.pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 9px 14px;
-  border-radius: 999px;
-  background: rgba(59, 110, 227, 0.08);
-  color: var(--primary-dark);
-  border: 1px solid rgba(59, 110, 227, 0.18);
-  font-weight: 600;
-}
-
-.pill::before {
-  content: '';
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: linear-gradient(135deg, var(--accent), var(--primary));
-  box-shadow: 0 4px 10px rgba(59, 110, 227, 0.3);
-}
-
-.muted {
-  color: var(--text-muted);
 }
 
 .section-title {
@@ -319,103 +247,9 @@ body {
   box-shadow: 0 12px 24px rgba(39, 76, 159, 0.35);
 }
 
-.table-block {
-  overflow: hidden;
-  border-radius: 14px;
-  box-shadow: var(--shadow);
-  border: 1px solid rgba(59, 110, 227, 0.12);
-}
-
-.table-block table,
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-  background: #fff;
-}
-
-.table-block th,
-.table-block td,
-table th,
-table td {
-  padding: 12px 14px;
-  border-bottom: 1px solid rgba(59, 110, 227, 0.08);
-  text-align: left;
-}
-
-.table-block th,
-table th {
-  background: linear-gradient(135deg, rgba(59, 110, 227, 0.08), rgba(90, 216, 255, 0.14));
-  color: var(--text-muted);
-  font-weight: 700;
-  letter-spacing: 0.3px;
-}
-
-.table-block tbody tr:nth-child(odd),
-table tbody tr:nth-child(odd) {
-  background: #f8faff;
-}
-
-.table-block tbody tr:hover,
-table tbody tr:hover {
-  background: rgba(59, 110, 227, 0.06);
-}
-
-.empty-tip {
-  padding: 18px;
-  border-radius: 12px;
-  background: rgba(59, 110, 227, 0.06);
-  color: var(--text-muted);
-  text-align: center;
-}
-
-input,
-select,
-textarea {
-  font-family: inherit;
-}
-
 /* 路由激活样式（当前页导航高亮） */
 .router-link-active {
   background-color: rgba(255, 255, 255, 0.16);
   font-weight: 700;
-}
-
-@media (max-width: 900px) {
-  .nav-bar {
-    flex-wrap: wrap;
-    gap: 10px;
-    padding: 12px 18px;
-  }
-
-  .nav-links {
-    width: 100%;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-  }
-
-  .page-shell {
-    padding: 22px 14px 28px;
-  }
-
-  .page-container {
-    padding: 20px;
-    border-radius: 14px;
-  }
-}
-
-@media (max-width: 600px) {
-  .nav-links {
-    gap: 4px;
-  }
-
-  .nav-item {
-    padding: 8px 10px;
-    font-size: 14px;
-  }
-
-  .page-container {
-    padding: 16px;
-  }
 }
 </style>
