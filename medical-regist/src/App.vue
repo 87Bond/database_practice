@@ -14,6 +14,10 @@
         <router-link v-if="isLoggedIn && isDoctor" to="/doctor-panel" class="nav-item">医生端</router-link>
         <router-link v-if="isLoggedIn && isDeptManager" to="/dept-panel" class="nav-item">科室端</router-link>
         <router-link v-if="isLoggedIn && isAdmin" to="/admin-panel" class="nav-item">系统管理</router-link>
+        <button class="nav-item nav-theme-toggle" type="button" @click="toggleTheme">
+          <span class="toggle-icon" role="img" aria-label="theme">{{ theme === 'light' ? '🌙' : '☀️' }}</span>
+          <span class="toggle-text">{{ theme === 'light' ? '夜间' : '日间' }}</span>
+        </button>
       </div>
     </nav>
     <!-- 页面容器（路由匹配的页面会显示在这里） -->
@@ -112,10 +116,23 @@ export default {
   color: var(--text-main);
 }
 
+[data-theme='dark'] {
+  --primary: #6ba0ff;
+  --primary-dark: #82b0ff;
+  --accent: #7edbff;
+  --bg: #0f172a;
+  --card: #101827;
+  --text-main: #e5e7eb;
+  --text-muted: #9ca3af;
+  --shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+  background: var(--bg);
+  color: var(--text-main);
+}
+
 body {
-  background: radial-gradient(circle at 10% 20%, rgba(90, 216, 255, 0.25), transparent 25%),
-    radial-gradient(circle at 90% 10%, rgba(59, 110, 227, 0.22), transparent 25%),
-    radial-gradient(circle at 80% 80%, rgba(39, 76, 159, 0.18), transparent 23%),
+  background: radial-gradient(circle at 10% 20%, rgba(90, 216, 255, 0.2), transparent 25%),
+    radial-gradient(circle at 90% 10%, rgba(59, 110, 227, 0.18), transparent 25%),
+    radial-gradient(circle at 80% 80%, rgba(39, 76, 159, 0.12), transparent 23%),
     var(--bg);
   min-height: 100vh;
 }
@@ -177,11 +194,34 @@ body {
   border-radius: 10px;
   transition: all 0.2s ease;
   font-weight: 500;
+  border: none;
 }
 
 .nav-item:hover {
   background-color: rgba(255, 255, 255, 0.16);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+.nav-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  cursor: pointer;
+  color: #fff;
+}
+
+.nav-theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.toggle-icon {
+  font-size: 16px;
+}
+
+.toggle-text {
+  font-size: 13px;
 }
 
 /* 页面容器 */
@@ -193,7 +233,7 @@ body {
   padding: 28px;
   max-width: 1200px;
   margin: 0 auto;
-  background: rgba(255, 255, 255, 0.9);
+  background: color-mix(in srgb, var(--card) 92%, transparent);
   border-radius: 18px;
   box-shadow: var(--shadow);
   backdrop-filter: blur(6px);
