@@ -12,28 +12,28 @@
       <!-- 左侧会话列表 -->
       <div class="conversation-sidebar card">
         <div
-          v-for="conv in conversations"
-          :key="conv.contactUserId"
-          :class="['conv-item', conv.contactUserId === selectedContactId ? 'active' : '']"
-          @click="selectedContactId = conv.contactUserId"
+          v-for="conv in contactList"
+          :key="conv.userId"
+          :class="['conv-item', conv.userId === selectedContactId ? 'active' : '']"
+          @click="selectContact(conv.userId)"
         >
           <div class="conv-avatar">
-            {{ (conv.contactUserName || conv.contactUserId || '').charAt(0) || '用' }}
+            {{ (conv.displayName || conv.userId || '').charAt(0) || '用' }}
           </div>
           <div class="conv-main">
             <div class="conv-header">
               <span class="conv-name">
-                {{ formatDisplayName(conv.contactUserName, conv.contactUserId) }}
+                {{ conv.displayName }}
               </span>
               <span class="conv-time">{{ formatTime(conv.lastTime) }}</span>
             </div>
             <div class="conv-preview">
-              {{ conv.lastTitle || conv.lastContent }}
+              {{ conv.lastTitle || conv.lastContent || '点击开始沟通' }}
             </div>
           </div>
         </div>
-        <div v-if="!conversations.length" class="empty-tip sidebar-empty">
-          暂无会话
+        <div v-if="!contactList.length" class="empty-tip sidebar-empty">
+          暂无可联系对象
         </div>
       </div>
 
@@ -83,15 +83,53 @@
                 </span>
                 <span class="chat-time">{{ formatTime(msg.createTime) }}</span>
               </div>
-              <div class="chat-title-text" v-if="msg.title">
-                {{ msg.title }}
-              </div>
-              <div class="chat-content">
-                {{ msg.content }}
+              <div class="send-actions">
+                <span class="pill ghost">{{ isPatient ? '患者端' : '工作端' }}</span>
               </div>
             </div>
-            <div v-if="conversation.length === 0" class="empty-tip">
+            <div class="form-item">
+              <label>标题</label>
+              <input v-model="title" type="text" class="input" placeholder="一句话概述你的诉求或提醒">
+            </div>
+            <div class="form-item">
+              <label>内容</label>
+              <textarea v-model="content" rows="3" class="textarea" placeholder="输入想要发送的详细内容"></textarea>
+            </div>
+            <div class="send-footer">
+              <div class="muted">发送后将在下方出现最新记录</div>
+              <button class="btn" @click="sendMessage">发送</button>
+            </div>
+          </div>
+
+          <div class="chat-box card">
+            <div class="chat-title-row">
+              <div>
+                <p class="eyebrow small">历史对话</p>
+                <h3 class="chat-title">{{ currentContactName }}</h3>
+              </div>
+            </div>
+            <div v-if="!conversation.length" class="empty-tip">
               暂无历史消息
+            </div>
+            <div v-else class="chat-list">
+              <div
+                v-for="msg in conversation"
+                :key="msg.messageId"
+                :class="['chat-item', msg.createUserId === userInfo.userId ? 'from-me' : 'from-other']"
+              >
+                <div class="chat-meta">
+                  <span class="chat-sender">
+                    {{ msg.createUserId === userInfo.userId ? '我' : (msg.createUserName || '对方') }}
+                  </span>
+                  <span class="chat-time">{{ formatTime(msg.createTime) }}</span>
+                </div>
+                <div class="chat-title-text" v-if="msg.title">
+                  {{ msg.title }}
+                </div>
+                <div class="chat-content">
+                  {{ msg.content }}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -258,6 +296,9 @@ export default {
         console.error(e)
       }
     },
+    selectContact (id) {
+      this.selectedContactId = id
+    },
     formatTime (t) {
       if (!t) return ''
       return String(t).replace('T', ' ').substring(0, 16)
@@ -285,8 +326,40 @@ export default {
       return this.userInfo && ['patient', 'doctor', 'admin', 'dept_manager'].includes(this.userInfo.role)
     },
     currentContactName () {
-      const c = this.contactOptions.find(d => d.userId === this.selectedContactId)
+      const c = this.contactList.find(d => d.userId === this.selectedContactId)
       return c ? c.displayName : ''
+    },
+    contactList () {
+      const map = {}
+      const list = []
+      this.contactOptions.forEach(c => {
+        const item = {
+          userId: c.userId,
+          displayName: c.displayName,
+          lastTitle: c.lastTitle,
+          lastContent: c.lastContent,
+          lastTime: c.lastTime
+        }
+        map[c.userId] = item
+        list.push(item)
+      })
+      this.conversations.forEach(conv => {
+        const id = conv.contactUserId
+        if (map[id]) {
+          map[id].lastTitle = conv.lastTitle || map[id].lastTitle
+          map[id].lastContent = conv.lastContent || map[id].lastContent
+          map[id].lastTime = conv.lastTime || map[id].lastTime
+        } else {
+          list.push({
+            userId: id,
+            displayName: this.formatDisplayName(conv.contactUserName, id),
+            lastTitle: conv.lastTitle,
+            lastContent: conv.lastContent,
+            lastTime: conv.lastTime
+          })
+        }
+      })
+      return list
     }
   },
   watch: {

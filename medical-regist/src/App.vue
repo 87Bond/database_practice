@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" :class="[`theme-${theme}`]">
     <!-- 顶部导航栏 -->
     <nav class="nav-bar">
       <div class="brand">
@@ -29,7 +29,8 @@
 export default {
   data () {
     return {
-      userInfo: null
+      userInfo: null,
+      theme: 'light'
     }
   },
   computed: {
@@ -51,6 +52,7 @@ export default {
   },
   created () {
     this.refreshUserInfo()
+    this.initTheme()
   },
   watch: {
     $route () {
@@ -69,6 +71,20 @@ export default {
       } else {
         this.userInfo = null
       }
+    },
+    initTheme () {
+      const saved = localStorage.getItem('ui-theme')
+      if (saved === 'dark' || saved === 'light') {
+        this.theme = saved
+      } else {
+        this.theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+      }
+      document.documentElement.setAttribute('data-theme', this.theme)
+    },
+    toggleTheme () {
+      this.theme = this.theme === 'light' ? 'dark' : 'light'
+      localStorage.setItem('ui-theme', this.theme)
+      document.documentElement.setAttribute('data-theme', this.theme)
     }
   }
 }
