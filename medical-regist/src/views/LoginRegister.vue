@@ -1,52 +1,64 @@
 <template>
   <div class="login-register">
-    <div class="tab-header">
-      <div class="tab-item" :class="{ active: isLogin }" @click="isLogin = true">登录</div>
-      <div class="tab-item" :class="{ active: !isLogin }" @click="isLogin = false">注册</div>
+    <div class="auth-hero">
+      <div>
+        <p class="eyebrow">欢迎使用智慧医疗</p>
+        <h2>一站式预约与就诊管理</h2>
+        <p class="sub">便捷挂号 / 消息沟通 / 个人中心全流程体验</p>
+      </div>
+      <div class="hero-badge">安心就医 · 轻松每一天</div>
     </div>
-    <!-- 登录表单 -->
-    <div class="form-container" v-if="isLogin">
-      <div class="form-item">
-        <label>手机号：</label>
-        <input v-model="loginId" type="tel" placeholder="请输入手机号或账号" class="input">
+    <div class="auth-card card">
+      <div class="tab-header">
+        <div class="tab-item" :class="{ active: isLogin }" @click="isLogin = true">登录</div>
+        <div class="tab-item" :class="{ active: !isLogin }" @click="isLogin = false">注册</div>
       </div>
-      <div class="form-item">
-        <label>密码：</label>
-        <input v-model="loginPassword" type="password" placeholder="请输入密码" class="input">
+      <!-- 登录表单 -->
+      <div class="form-container" v-if="isLogin">
+        <div class="form-item">
+          <label>手机号</label>
+          <input v-model="loginId" type="tel" placeholder="请输入手机号或账号" class="input">
+        </div>
+        <div class="form-item">
+          <label>密码</label>
+          <input v-model="loginPassword" type="password" placeholder="请输入密码" class="input">
+        </div>
+        <button class="primary-btn submit-btn" @click="handleLogin">立即登录</button>
       </div>
-      <button class="submit-btn" @click="handleLogin">登录</button>
-    </div>
-    <!-- 注册表单 -->
-    <div class="form-container" v-else>
-      <div class="form-item">
-        <label>姓名：</label>
-        <input v-model="registerForm.patientName" type="text" placeholder="请输入姓名" class="input">
+      <!-- 注册表单 -->
+      <div class="form-container" v-else>
+        <div class="form-grid">
+          <div class="form-item">
+            <label>姓名</label>
+            <input v-model="registerForm.patientName" type="text" placeholder="请输入姓名" class="input">
+          </div>
+          <div class="form-item">
+            <label>性别</label>
+            <select v-model="registerForm.gender" class="input">
+              <option value="">请选择</option>
+              <option value="男">男</option>
+              <option value="女">女</option>
+            </select>
+          </div>
+          <div class="form-item">
+            <label>年龄</label>
+            <input v-model.number="registerForm.age" type="number" min="0" placeholder="请输入年龄" class="input">
+          </div>
+          <div class="form-item">
+            <label>手机号</label>
+            <input v-model="registerForm.phone" type="tel" placeholder="请输入手机号" class="input">
+          </div>
+          <div class="form-item">
+            <label>密码</label>
+            <input v-model="registerForm.password" type="password" placeholder="请设置密码" class="input">
+          </div>
+          <div class="form-item">
+            <label>身份证号</label>
+            <input v-model="registerForm.idCard" type="text" placeholder="请输入身份证号" class="input">
+          </div>
+        </div>
+        <button class="primary-btn submit-btn" @click="handleRegister">完成注册</button>
       </div>
-      <div class="form-item">
-        <label>性别：</label>
-        <select v-model="registerForm.gender" class="input">
-          <option value="">请选择</option>
-          <option value="男">男</option>
-          <option value="女">女</option>
-        </select>
-      </div>
-      <div class="form-item">
-        <label>年龄：</label>
-        <input v-model.number="registerForm.age" type="number" min="0" placeholder="请输入年龄" class="input">
-      </div>
-      <div class="form-item">
-        <label>手机号：</label>
-        <input v-model="registerForm.phone" type="tel" placeholder="请输入手机号" class="input">
-      </div>
-      <div class="form-item">
-        <label>密码：</label>
-        <input v-model="registerForm.password" type="password" placeholder="请设置密码" class="input">
-      </div>
-      <div class="form-item">
-        <label>身份证号：</label>
-        <input v-model="registerForm.idCard" type="text" placeholder="请输入身份证号" class="input">
-      </div>
-      <button class="submit-btn" @click="handleRegister">注册</button>
     </div>
   </div>
 </template>
@@ -123,60 +135,111 @@ export default {
 
 <style scoped>
 .login-register {
-  max-width: 400px;
-  margin: 0 auto;
+  display: grid;
+  gap: 24px;
 }
-.tab-header {
-  display: flex;
-  margin-bottom: 20px;
-}
-.tab-item {
-  flex: 1;
-  text-align: center;
-  padding: 10px;
-  border-bottom: 2px solid #e0e0e0;
-  cursor: pointer;
-}
-.tab-item.active {
-  border-bottom-color: #2f5496;
-  color: #2f5496;
-  font-weight: bold;
-}
-.form-item {
+
+.auth-hero {
+  padding: 24px 28px;
+  border-radius: 18px;
+  background: linear-gradient(120deg, rgba(59, 110, 227, 0.12), rgba(90, 216, 255, 0.18));
+  border: 1px solid rgba(59, 110, 227, 0.18);
+  box-shadow: 0 10px 30px rgba(59, 110, 227, 0.18);
   display: flex;
   align-items: center;
-  margin-bottom: 15px;
+  justify-content: space-between;
+  gap: 14px;
 }
-.form-item label {
-  width: 80px;
-  color: #333;
+
+.eyebrow {
+  color: var(--primary-dark);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
 }
-.input {
-  flex: 1;
-  padding: 8px 10px;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
+
+.auth-hero h2 {
+  font-size: 24px;
+  margin-bottom: 6px;
 }
-.code-btn {
-  margin-left: 10px;
-  padding: 8px 15px;
-  background-color: #2f5496;
-  color: white;
-  border: none;
-  border-radius: 4px;
+
+.auth-hero .sub {
+  color: var(--text-muted);
+}
+
+.hero-badge {
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: var(--primary-dark);
+  box-shadow: var(--shadow);
+  font-weight: 700;
+}
+
+.auth-card {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.tab-header {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  margin-bottom: 20px;
+  background: #f4f6fb;
+  border-radius: 12px;
+  padding: 6px;
+}
+
+.tab-item {
+  text-align: center;
+  padding: 10px;
   cursor: pointer;
+  border-radius: 10px;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+  font-weight: 600;
 }
+
+.tab-item.active {
+  background: #fff;
+  color: var(--primary-dark);
+  box-shadow: 0 8px 18px rgba(59, 110, 227, 0.18);
+}
+
+.form-container {
+  display: grid;
+  gap: 14px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px 16px;
+}
+
+.form-item {
+  display: grid;
+  gap: 6px;
+  color: var(--text-main);
+}
+
+.input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid rgba(59, 110, 227, 0.18);
+  border-radius: 10px;
+  background: #f8faff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(59, 110, 227, 0.2);
+}
+
 .submit-btn {
   width: 100%;
-  padding: 10px;
-  background-color: #2f5496;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-top: 10px;
-}
-.submit-btn:hover {
-  background-color: #1f3a68;
+  margin-top: 4px;
 }
 </style>

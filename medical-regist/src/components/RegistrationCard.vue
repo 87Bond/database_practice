@@ -1,25 +1,30 @@
 <template>
-  <div class="regist-card">
-    <h3>{{ doctorName }}</h3>
-    <p class="dept">{{ department }}</p>
-    <div class="info">
-      <span>职称：{{ title }}</span>
-      <span v-if="timeSlots && timeSlots.length">可约时段：</span>
+  <div class="regist-card card">
+    <div class="card-header">
+      <div>
+        <div class="doc-name">{{ doctorName }}</div>
+        <p class="dept">{{ department }}</p>
+      </div>
+      <span class="badge">{{ title }}</span>
     </div>
-    <div class="slot-select" v-if="timeSlots && timeSlots.length">
-      <select v-model="selectedSlot" class="slot-input">
-        <option disabled value="">请选择时段</option>
-        <option
-          v-for="slot in timeSlots"
-          :key="slot.slotId"
-          :value="slot.slotId"
-        >
-          {{ formatSlot(slot) }}
-        </option>
-      </select>
+    <div class="info">
+      <span class="label">可约时段</span>
+      <div class="slot-select" v-if="timeSlots && timeSlots.length">
+        <select v-model="selectedSlot" class="slot-input">
+          <option disabled value="">请选择时段</option>
+          <option
+            v-for="slot in timeSlots"
+            :key="slot.slotId"
+            :value="slot.slotId"
+          >
+            {{ formatSlot(slot) }}
+          </option>
+        </select>
+      </div>
+      <div v-else class="no-slot">暂无号源，试试其他日期</div>
     </div>
     <button
-      class="btn"
+      class="primary-btn action-btn"
       :class="{ disabled: !timeSlots || !timeSlots.length }"
       :disabled="!timeSlots || !timeSlots.length"
       @click="handleRegister"
@@ -74,48 +79,77 @@ export default {
 
 <style scoped>
 .regist-card {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 15px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  display: grid;
+  gap: 12px;
 }
-.regist-card h3 {
-  color: #2f5496;
-  margin-bottom: 8px;
-}
-.dept {
-  color: #666;
-  margin-bottom: 10px;
-}
-.info {
+
+.card-header {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  margin-bottom: 15px;
-  color: #333;
+  gap: 12px;
 }
+
+.doc-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--primary-dark);
+}
+
+.dept {
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.badge {
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(59, 110, 227, 0.1);
+  color: var(--primary-dark);
+  font-weight: 600;
+  border: 1px solid rgba(59, 110, 227, 0.25);
+}
+
+.info {
+  display: grid;
+  gap: 8px;
+}
+
+.label {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
 .slot-select {
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
+
 .slot-input {
   width: 100%;
-  padding: 6px 10px;
-  border-radius: 4px;
-  border: 1px solid #e0e0e0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(59, 110, 227, 0.2);
+  background: #f8faff;
 }
-.btn {
-  background-color: #2f5496;
-  color: white;
-  border: none;
-  padding: 8px 15px;
-  border-radius: 4px;
-  cursor: pointer;
+
+.slot-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(59, 110, 227, 0.18);
 }
-.btn:hover {
-  background-color: #1f3a68;
+
+.no-slot {
+  color: var(--text-muted);
 }
-.btn.disabled {
-  background-color: #cccccc;
+
+.action-btn {
+  justify-self: flex-start;
+  min-width: 140px;
+}
+
+.action-btn.disabled {
+  background: #cdd5e4;
+  box-shadow: none;
   cursor: not-allowed;
 }
 </style>
