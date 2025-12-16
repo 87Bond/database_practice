@@ -1,12 +1,26 @@
 <template>
   <div class="login-register">
-    <div class="auth-hero">
+    <div class="hero-panel card">
       <div>
-        <p class="eyebrow">欢迎使用智慧医疗</p>
-        <h2>一站式预约与就诊管理</h2>
-        <p class="sub">便捷挂号 / 消息沟通 / 个人中心全流程体验</p>
+        <div class="hero-tag">欢迎使用智慧医疗</div>
+        <h1>一站式预约与就诊管理</h1>
+        <p class="sub">便捷挂号 · 消息沟通 · 个人中心全流程体验</p>
+        <div class="hero-stats">
+          <div class="stat">
+            <div class="stat-number">24/7</div>
+            <div class="stat-label">随时预约</div>
+          </div>
+          <div class="stat">
+            <div class="stat-number">多角色</div>
+            <div class="stat-label">患者 / 医生 / 管理员</div>
+          </div>
+          <div class="stat">
+            <div class="stat-number">双模式</div>
+            <div class="stat-label">日间 / 夜间护眼</div>
+          </div>
+        </div>
       </div>
-      <div class="hero-badge">安心就医 · 轻松每一天</div>
+      <div class="hero-badge">安心就医 · 灵动体验</div>
     </div>
     <div class="auth-card card">
       <div class="tab-header">
@@ -136,61 +150,95 @@ export default {
 <style scoped>
 .login-register {
   display: grid;
+  grid-template-columns: 1.1fr 1fr;
   gap: 24px;
+  align-items: stretch;
 }
 
-.auth-hero {
-  padding: 24px 28px;
-  border-radius: 18px;
-  background: linear-gradient(120deg, rgba(59, 110, 227, 0.12), rgba(90, 216, 255, 0.18));
+.hero-panel {
+  background: radial-gradient(circle at 20% 30%, rgba(90, 216, 255, 0.18), transparent 32%),
+    radial-gradient(circle at 70% 20%, rgba(59, 110, 227, 0.22), transparent 38%),
+    linear-gradient(135deg, color-mix(in srgb, var(--primary) 20%, transparent), color-mix(in srgb, var(--card) 90%, transparent));
   border: 1px solid rgba(59, 110, 227, 0.18);
-  box-shadow: 0 10px 30px rgba(59, 110, 227, 0.18);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
+  padding: 28px 32px;
+  border-radius: 20px;
+  display: grid;
+  gap: 16px;
 }
 
-.eyebrow {
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(59, 110, 227, 0.12);
   color: var(--primary-dark);
   font-weight: 700;
-  letter-spacing: 0.5px;
+}
+
+.hero-panel h1 {
+  font-size: 30px;
+  line-height: 1.3;
   margin-bottom: 6px;
 }
 
-.auth-hero h2 {
-  font-size: 24px;
-  margin-bottom: 6px;
-}
-
-.auth-hero .sub {
+.hero-panel .sub {
   color: var(--text-muted);
 }
 
+.hero-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.stat {
+  background: color-mix(in srgb, var(--card) 92%, transparent);
+  border: 1px solid rgba(59, 110, 227, 0.12);
+  border-radius: 14px;
+  padding: 12px;
+  box-shadow: 0 12px 24px rgba(59, 110, 227, 0.12);
+}
+
+.stat-number {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--primary-dark);
+}
+
+.stat-label {
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
 .hero-badge {
-  background: #fff;
+  background: color-mix(in srgb, var(--card) 96%, transparent);
   border-radius: 12px;
   padding: 12px 16px;
   color: var(--primary-dark);
   box-shadow: var(--shadow);
   font-weight: 700;
+  width: fit-content;
 }
 
 .auth-card {
-  max-width: 640px;
-  margin: 0 auto;
+  max-width: 680px;
+  width: 100%;
+  margin: auto;
 }
 
 .tab-header {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   margin-bottom: 20px;
-  background: #f4f6fb;
+  background: color-mix(in srgb, var(--card) 88%, transparent);
   border-radius: 12px;
   padding: 6px;
 }
 
-.tab-item {
+.tab-item { 
   text-align: center;
   padding: 10px;
   cursor: pointer;
@@ -201,7 +249,7 @@ export default {
 }
 
 .tab-item.active {
-  background: #fff;
+  background: color-mix(in srgb, var(--card) 98%, transparent);
   color: var(--primary-dark);
   box-shadow: 0 8px 18px rgba(59, 110, 227, 0.18);
 }
@@ -228,7 +276,7 @@ export default {
   padding: 10px 12px;
   border: 1px solid rgba(59, 110, 227, 0.18);
   border-radius: 10px;
-  background: #f8faff;
+  background: color-mix(in srgb, var(--card) 92%, transparent);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -241,5 +289,29 @@ export default {
 .submit-btn {
   width: 100%;
   margin-top: 4px;
+}
+
+@media (max-width: 960px) {
+  .login-register {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-panel {
+    order: 2;
+  }
+
+  .auth-card {
+    order: 1;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-panel h1 {
+    font-size: 24px;
+  }
+
+  .hero-panel {
+    padding: 20px;
+  }
 }
 </style>

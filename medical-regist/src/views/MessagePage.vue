@@ -11,6 +11,13 @@
     <div class="message-layout">
       <!-- 左侧会话列表 -->
       <div class="conversation-sidebar card">
+        <div class="sidebar-head">
+          <div>
+            <p class="eyebrow small">联系人</p>
+            <div class="muted">所有可沟通的对象都会出现在这里</div>
+          </div>
+          <span class="pill ghost small" v-if="contactList.length">{{ contactList.length }} 人</span>
+        </div>
         <div
           v-for="conv in contactList"
           :key="conv.userId"
@@ -39,39 +46,15 @@
 
       <!-- 右侧聊天 + 系统消息 -->
       <div class="message-main">
-        <div v-if="canSend" class="send-box card">
-          <h3 v-if="isPatient">给就诊医生发消息</h3>
-          <h3 v-else-if="isDoctor">给患者 / 管理员发消息</h3>
-          <h3 v-else>发送系统消息</h3>
-          <div class="form-item">
-            <label>选择对象：</label>
-            <select v-model="selectedContactId" class="select">
-              <option value="">请选择</option>
-              <option v-for="c in contactOptions" :key="c.userId" :value="c.userId">
-                {{ c.displayName }}
-              </option>
-            </select>
+        <div v-if="selectedContactId && canSend" class="chat-panel card">
+          <div class="chat-title-row">
+            <div>
+              <p class="eyebrow small">当前对象</p>
+              <h3 class="chat-title">{{ currentContactName }}</h3>
+            </div>
+            <span class="pill ghost">实时沟通</span>
           </div>
-          <div class="form-item">
-            <label>标题：</label>
-            <input v-model="title" type="text" class="input">
-          </div>
-          <div class="form-item">
-            <label>内容：</label>
-            <textarea v-model="content" rows="3" class="textarea"></textarea>
-          </div>
-          <button class="btn" @click="sendMessage">发送</button>
-        </div>
-
-        <div v-if="canSend" class="chat-box card">
-          <h3 class="chat-title">
-            对话记录
-            <span v-if="currentContactName">（当前对象：{{ currentContactName }}）</span>
-          </h3>
-          <div v-if="!selectedContactId" class="empty-tip">
-            请选择对象后查看与你之间的消息记录
-          </div>
-          <div v-else class="chat-list">
+          <div class="chat-list" v-if="conversation.length">
             <div
               v-for="msg in conversation"
               :key="msg.messageId"
@@ -83,10 +66,17 @@
                 </span>
                 <span class="chat-time">{{ formatTime(msg.createTime) }}</span>
               </div>
-              <div class="send-actions">
-                <span class="pill ghost">{{ isPatient ? '患者端' : '工作端' }}</span>
+              <div class="chat-title-text" v-if="msg.title">
+                {{ msg.title }}
+              </div>
+              <div class="chat-content">
+                {{ msg.content }}
               </div>
             </div>
+          </div>
+          <div v-else class="empty-tip">暂无历史消息，发送一条试试吧</div>
+
+          <div class="composer">
             <div class="form-item">
               <label>标题</label>
               <input v-model="title" type="text" class="input" placeholder="一句话概述你的诉求或提醒">
@@ -96,42 +86,15 @@
               <textarea v-model="content" rows="3" class="textarea" placeholder="输入想要发送的详细内容"></textarea>
             </div>
             <div class="send-footer">
-              <div class="muted">发送后将在下方出现最新记录</div>
+              <div class="muted">消息会出现在上方对话记录中</div>
               <button class="btn" @click="sendMessage">发送</button>
             </div>
           </div>
+        </div>
 
-          <div class="chat-box card">
-            <div class="chat-title-row">
-              <div>
-                <p class="eyebrow small">历史对话</p>
-                <h3 class="chat-title">{{ currentContactName }}</h3>
-              </div>
-            </div>
-            <div v-if="!conversation.length" class="empty-tip">
-              暂无历史消息
-            </div>
-            <div v-else class="chat-list">
-              <div
-                v-for="msg in conversation"
-                :key="msg.messageId"
-                :class="['chat-item', msg.createUserId === userInfo.userId ? 'from-me' : 'from-other']"
-              >
-                <div class="chat-meta">
-                  <span class="chat-sender">
-                    {{ msg.createUserId === userInfo.userId ? '我' : (msg.createUserName || '对方') }}
-                  </span>
-                  <span class="chat-time">{{ formatTime(msg.createTime) }}</span>
-                </div>
-                <div class="chat-title-text" v-if="msg.title">
-                  {{ msg.title }}
-                </div>
-                <div class="chat-content">
-                  {{ msg.content }}
-                </div>
-              </div>
-            </div>
-          </div>
+        <div v-else class="card chat-placeholder">
+          <h3>选择左侧联系人开始对话</h3>
+          <p class="muted">全部可沟通对象已列出，点击即可查看历史并发送消息</p>
         </div>
 
         <div class="msg-list card">
@@ -390,6 +353,11 @@ export default {
   color: var(--text-main);
 }
 
+.muted {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
 .pill {
   background: rgba(59, 110, 227, 0.08);
   color: var(--primary-dark);
@@ -399,16 +367,29 @@ export default {
   border: 1px solid rgba(59, 110, 227, 0.2);
 }
 
+.pill.ghost {
+  background: transparent;
+  color: var(--text-main);
+}
+
+.pill.small {
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
 .message-layout {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 300px 1fr;
   gap: 18px;
 }
 
 .conversation-sidebar {
-  max-height: 520px;
+  max-height: 620px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 0 6px;
   overflow-y: auto;
-  padding: 4px 0;
 }
 
 .conv-item {
@@ -469,13 +450,24 @@ export default {
   text-overflow: ellipsis;
 }
 
+.sidebar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px 8px;
+  border-bottom: 1px solid rgba(59, 110, 227, 0.08);
+  margin-bottom: 6px;
+}
+
 .message-main {
   display: grid;
   gap: 16px;
 }
 
-.send-box {
-  display: grid;
+
+.chat-panel {
+  display: flex;
+  flex-direction: column;
   gap: 12px;
 }
 
@@ -496,7 +488,8 @@ export default {
   padding: 10px 12px;
   border: 1px solid rgba(59, 110, 227, 0.18);
   border-radius: 10px;
-  background: #f8faff;
+  background: color-mix(in srgb, var(--card) 92%, transparent);
+  color: var(--text-main);
 }
 
 .textarea {
@@ -519,9 +512,10 @@ export default {
   box-shadow: 0 12px 24px rgba(39, 76, 159, 0.35);
 }
 
-.chat-box {
-  display: grid;
-  gap: 10px;
+.chat-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .chat-title {
@@ -529,7 +523,7 @@ export default {
 }
 
 .chat-list {
-  max-height: 260px;
+  max-height: 42vh;
   overflow-y: auto;
   display: grid;
   gap: 12px;
@@ -563,8 +557,9 @@ export default {
 }
 
 .chat-content {
-  max-width: 70%;
-  background: #f1f5ff;
+  max-width: min(70%, 540px);
+  width: 100%;
+  background: color-mix(in srgb, var(--primary) 12%, var(--card));
   border-radius: 12px;
   padding: 10px 12px;
   font-size: 14px;
@@ -576,6 +571,21 @@ export default {
   background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   color: #fff;
   box-shadow: 0 8px 18px rgba(39, 76, 159, 0.22);
+}
+
+.composer {
+  display: grid;
+  gap: 10px;
+  border-top: 1px dashed rgba(59, 110, 227, 0.14);
+  padding-top: 10px;
+}
+
+.chat-placeholder {
+  display: grid;
+  gap: 6px;
+  align-content: center;
+  min-height: 260px;
+  text-align: center;
 }
 
 .msg-list h3 {
@@ -590,5 +600,44 @@ export default {
 .sidebar-empty {
   padding: 10px;
   color: var(--text-muted);
+}
+
+@media (max-width: 960px) {
+  .message-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .conversation-sidebar {
+    max-height: none;
+  }
+
+  .chat-list {
+    max-height: none;
+  }
+
+  .chat-content {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .conversation-sidebar {
+    padding: 6px;
+  }
+
+  .conv-item {
+    margin: 4px 2px;
+  }
+
+  .chat-title-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
 }
 </style>
