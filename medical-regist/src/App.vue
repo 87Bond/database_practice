@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" :class="[`theme-${theme}`]">
     <!-- 顶部导航栏 -->
     <nav class="nav-bar">
       <div class="brand">
@@ -14,6 +14,9 @@
         <router-link v-if="isLoggedIn && isDoctor" to="/doctor-panel" class="nav-item">医生端</router-link>
         <router-link v-if="isLoggedIn && isDeptManager" to="/dept-panel" class="nav-item">科室端</router-link>
         <router-link v-if="isLoggedIn && isAdmin" to="/admin-panel" class="nav-item">系统管理</router-link>
+        <button class="nav-toggle" @click="toggleTheme" :aria-label="`切换为${theme === 'light' ? '深色' : '浅色'}模式`">
+          <span class="toggle-icon" :class="theme">{{ theme === 'light' ? '🌞' : '🌙' }}</span>
+        </button>
       </div>
     </nav>
     <!-- 页面容器（路由匹配的页面会显示在这里） -->
@@ -29,7 +32,8 @@
 export default {
   data () {
     return {
-      userInfo: null
+      userInfo: null,
+      theme: 'light'
     }
   },
   computed: {
@@ -51,6 +55,7 @@ export default {
   },
   created () {
     this.refreshUserInfo()
+    this.initTheme()
   },
   watch: {
     $route () {
@@ -69,6 +74,20 @@ export default {
       } else {
         this.userInfo = null
       }
+    },
+    initTheme () {
+      const saved = localStorage.getItem('ui-theme')
+      if (saved === 'dark' || saved === 'light') {
+        this.theme = saved
+      } else {
+        this.theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+      }
+      document.documentElement.setAttribute('data-theme', this.theme)
+    },
+    toggleTheme () {
+      this.theme = this.theme === 'light' ? 'dark' : 'light'
+      localStorage.setItem('ui-theme', this.theme)
+      document.documentElement.setAttribute('data-theme', this.theme)
     }
   }
 }
@@ -88,20 +107,40 @@ export default {
   --accent: #5ad8ff;
   --bg: #f6f8fb;
   --card: #ffffff;
+  --panel: rgba(255, 255, 255, 0.86);
+  --field-bg: #f8faff;
   --text-main: #1f2d3d;
   --text-muted: #6b7b8c;
-  --shadow: 0 12px 30px rgba(38, 74, 164, 0.15);
+  --shadow: 0 14px 36px rgba(38, 74, 164, 0.12);
+  --nav-start: #2f59d6;
+  --nav-end: #1c3f9b;
   font-family: 'Inter', 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
   background: var(--bg);
   color: var(--text-main);
 }
 
+[data-theme='dark'] {
+  --primary: #5b8dff;
+  --primary-dark: #3553b3;
+  --accent: #74e1ff;
+  --bg: #0e1529;
+  --card: #111a30;
+  --panel: rgba(17, 26, 48, 0.92);
+  --field-bg: #16233f;
+  --text-main: #e6ecff;
+  --text-muted: #9db0d1;
+  --shadow: 0 14px 36px rgba(0, 0, 0, 0.45);
+  --nav-start: #0f1c3e;
+  --nav-end: #162851;
+}
+
 body {
   background: radial-gradient(circle at 10% 20%, rgba(90, 216, 255, 0.25), transparent 25%),
-    radial-gradient(circle at 90% 10%, rgba(59, 110, 227, 0.22), transparent 25%),
-    radial-gradient(circle at 80% 80%, rgba(39, 76, 159, 0.18), transparent 23%),
+    radial-gradient(circle at 90% 10%, rgba(59, 110, 227, 0.18), transparent 25%),
+    radial-gradient(circle at 80% 80%, rgba(39, 76, 159, 0.14), transparent 23%),
     var(--bg);
   min-height: 100vh;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 #app {
@@ -113,7 +152,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: linear-gradient(90deg, #2f59d6, #1c3f9b);
+  background: linear-gradient(90deg, var(--nav-start), var(--nav-end));
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -168,16 +207,39 @@ body {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
 }
 
+.nav-toggle {
+  margin-left: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  border-radius: 12px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-weight: 700;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.nav-toggle:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+}
+
+.toggle-icon {
+  font-size: 14px;
+}
+
 /* 页面容器 */
 .page-shell {
-  padding: 26px 18px 36px;
+  padding: 36px 22px 44px;
 }
 
 .page-container {
-  padding: 28px;
-  max-width: 1200px;
+  padding: 32px;
+  max-width: 1280px;
   margin: 0 auto;
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--panel);
   border-radius: 18px;
   box-shadow: var(--shadow);
   backdrop-filter: blur(6px);

@@ -11,87 +11,101 @@
     <div class="message-layout">
       <!-- 左侧会话列表 -->
       <div class="conversation-sidebar card">
+        <div class="sidebar-header">
+          <h3>联系人</h3>
+          <p class="muted">选择后可发送消息并查看记录</p>
+        </div>
         <div
-          v-for="conv in conversations"
-          :key="conv.contactUserId"
-          :class="['conv-item', conv.contactUserId === selectedContactId ? 'active' : '']"
-          @click="selectedContactId = conv.contactUserId"
+          v-for="conv in contactList"
+          :key="conv.userId"
+          :class="['conv-item', conv.userId === selectedContactId ? 'active' : '']"
+          @click="selectContact(conv.userId)"
         >
           <div class="conv-avatar">
-            {{ (conv.contactUserName || conv.contactUserId || '').charAt(0) || '用' }}
+            {{ (conv.displayName || conv.userId || '').charAt(0) || '用' }}
           </div>
           <div class="conv-main">
             <div class="conv-header">
               <span class="conv-name">
-                {{ formatDisplayName(conv.contactUserName, conv.contactUserId) }}
+                {{ conv.displayName }}
               </span>
               <span class="conv-time">{{ formatTime(conv.lastTime) }}</span>
             </div>
             <div class="conv-preview">
-              {{ conv.lastTitle || conv.lastContent }}
+              {{ conv.lastTitle || conv.lastContent || '点击开始沟通' }}
             </div>
           </div>
         </div>
-        <div v-if="!conversations.length" class="empty-tip sidebar-empty">
-          暂无会话
+        <div v-if="!contactList.length" class="empty-tip sidebar-empty">
+          暂无可联系对象
         </div>
       </div>
 
       <!-- 右侧聊天 + 系统消息 -->
       <div class="message-main">
-        <div v-if="canSend" class="send-box card">
-          <h3 v-if="isPatient">给就诊医生发消息</h3>
-          <h3 v-else-if="isDoctor">给患者 / 管理员发消息</h3>
-          <h3 v-else>发送系统消息</h3>
-          <div class="form-item">
-            <label>选择对象：</label>
-            <select v-model="selectedContactId" class="select">
-              <option value="">请选择</option>
-              <option v-for="c in contactOptions" :key="c.userId" :value="c.userId">
-                {{ c.displayName }}
-              </option>
-            </select>
-          </div>
-          <div class="form-item">
-            <label>标题：</label>
-            <input v-model="title" type="text" class="input">
-          </div>
-          <div class="form-item">
-            <label>内容：</label>
-            <textarea v-model="content" rows="3" class="textarea"></textarea>
-          </div>
-          <button class="btn" @click="sendMessage">发送</button>
+        <div v-if="canSend && !selectedContactId" class="empty-panel card">
+          <div class="empty-icon">💬</div>
+          <h3>选择左侧联系人开始聊天</h3>
+          <p class="muted">支持发送消息与查看历史记录，未选择时保持清爽界面</p>
         </div>
 
-        <div v-if="canSend" class="chat-box card">
-          <h3 class="chat-title">
-            对话记录
-            <span v-if="currentContactName">（当前对象：{{ currentContactName }}）</span>
-          </h3>
-          <div v-if="!selectedContactId" class="empty-tip">
-            请选择对象后查看与你之间的消息记录
-          </div>
-          <div v-else class="chat-list">
-            <div
-              v-for="msg in conversation"
-              :key="msg.messageId"
-              :class="['chat-item', msg.createUserId === userInfo.userId ? 'from-me' : 'from-other']"
-            >
-              <div class="chat-meta">
-                <span class="chat-sender">
-                  {{ msg.createUserId === userInfo.userId ? '我' : (msg.createUserName || '对方') }}
-                </span>
-                <span class="chat-time">{{ formatTime(msg.createTime) }}</span>
+        <div v-if="canSend && selectedContactId" class="stacked">
+          <div class="send-box card">
+            <div class="send-header">
+              <div class="contact-chip">
+                <div class="chip-avatar">{{ currentContactName.charAt(0) }}</div>
+                <div>
+                  <div class="chip-name">{{ currentContactName }}</div>
+                  <div class="chip-sub muted">即时沟通 · 更高效</div>
+                </div>
               </div>
-              <div class="chat-title-text" v-if="msg.title">
-                {{ msg.title }}
-              </div>
-              <div class="chat-content">
-                {{ msg.content }}
+              <div class="send-actions">
+                <span class="pill ghost">{{ isPatient ? '患者端' : '工作端' }}</span>
               </div>
             </div>
-            <div v-if="conversation.length === 0" class="empty-tip">
+            <div class="form-item">
+              <label>标题</label>
+              <input v-model="title" type="text" class="input" placeholder="一句话概述你的诉求或提醒">
+            </div>
+            <div class="form-item">
+              <label>内容</label>
+              <textarea v-model="content" rows="3" class="textarea" placeholder="输入想要发送的详细内容"></textarea>
+            </div>
+            <div class="send-footer">
+              <div class="muted">发送后将在下方出现最新记录</div>
+              <button class="btn" @click="sendMessage">发送</button>
+            </div>
+          </div>
+
+          <div class="chat-box card">
+            <div class="chat-title-row">
+              <div>
+                <p class="eyebrow small">历史对话</p>
+                <h3 class="chat-title">{{ currentContactName }}</h3>
+              </div>
+            </div>
+            <div v-if="!conversation.length" class="empty-tip">
               暂无历史消息
+            </div>
+            <div v-else class="chat-list">
+              <div
+                v-for="msg in conversation"
+                :key="msg.messageId"
+                :class="['chat-item', msg.createUserId === userInfo.userId ? 'from-me' : 'from-other']"
+              >
+                <div class="chat-meta">
+                  <span class="chat-sender">
+                    {{ msg.createUserId === userInfo.userId ? '我' : (msg.createUserName || '对方') }}
+                  </span>
+                  <span class="chat-time">{{ formatTime(msg.createTime) }}</span>
+                </div>
+                <div class="chat-title-text" v-if="msg.title">
+                  {{ msg.title }}
+                </div>
+                <div class="chat-content">
+                  {{ msg.content }}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -258,6 +272,9 @@ export default {
         console.error(e)
       }
     },
+    selectContact (id) {
+      this.selectedContactId = id
+    },
     formatTime (t) {
       if (!t) return ''
       return String(t).replace('T', ' ').substring(0, 16)
@@ -285,8 +302,40 @@ export default {
       return this.userInfo && ['patient', 'doctor', 'admin', 'dept_manager'].includes(this.userInfo.role)
     },
     currentContactName () {
-      const c = this.contactOptions.find(d => d.userId === this.selectedContactId)
+      const c = this.contactList.find(d => d.userId === this.selectedContactId)
       return c ? c.displayName : ''
+    },
+    contactList () {
+      const map = {}
+      const list = []
+      this.contactOptions.forEach(c => {
+        const item = {
+          userId: c.userId,
+          displayName: c.displayName,
+          lastTitle: c.lastTitle,
+          lastContent: c.lastContent,
+          lastTime: c.lastTime
+        }
+        map[c.userId] = item
+        list.push(item)
+      })
+      this.conversations.forEach(conv => {
+        const id = conv.contactUserId
+        if (map[id]) {
+          map[id].lastTitle = conv.lastTitle || map[id].lastTitle
+          map[id].lastContent = conv.lastContent || map[id].lastContent
+          map[id].lastTime = conv.lastTime || map[id].lastTime
+        } else {
+          list.push({
+            userId: id,
+            displayName: this.formatDisplayName(conv.contactUserName, id),
+            lastTitle: conv.lastTitle,
+            lastContent: conv.lastContent,
+            lastTime: conv.lastTime
+          })
+        }
+      })
+      return list
     }
   },
   watch: {
@@ -328,14 +377,18 @@ export default {
 
 .message-layout {
   display: grid;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 300px 1fr;
   gap: 18px;
 }
 
 .conversation-sidebar {
-  max-height: 520px;
+  max-height: 640px;
   overflow-y: auto;
-  padding: 4px 0;
+  padding: 10px 0 12px;
+}
+
+.sidebar-header {
+  padding: 0 16px 10px;
 }
 
 .conv-item {
@@ -354,9 +407,9 @@ export default {
 }
 
 .conv-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  border-radius: 16px;
   background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   color: #fff;
   display: flex;
@@ -401,9 +454,14 @@ export default {
   gap: 16px;
 }
 
+.stacked {
+  display: grid;
+  gap: 16px;
+}
+
 .send-box {
   display: grid;
-  gap: 12px;
+  gap: 14px;
 }
 
 .form-item {
@@ -423,11 +481,60 @@ export default {
   padding: 10px 12px;
   border: 1px solid rgba(59, 110, 227, 0.18);
   border-radius: 10px;
-  background: #f8faff;
+  background: var(--field-bg);
 }
 
 .textarea {
   resize: vertical;
+}
+
+.send-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.contact-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chip-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+}
+
+.chip-name {
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.chip-sub {
+  font-size: 12px;
+}
+
+.send-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.pill.ghost {
+  background: rgba(59, 110, 227, 0.08);
+  border: 1px dashed rgba(59, 110, 227, 0.35);
+}
+
+.send-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .btn {
@@ -451,8 +558,19 @@ export default {
   gap: 10px;
 }
 
+.chat-title-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
 .chat-title {
   margin-bottom: 2px;
+}
+
+.eyebrow.small {
+  margin-bottom: 4px;
+  font-size: 12px;
 }
 
 .chat-list {
@@ -517,5 +635,17 @@ export default {
 .sidebar-empty {
   padding: 10px;
   color: var(--text-muted);
+}
+
+.empty-panel {
+  text-align: center;
+  padding: 48px 24px;
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+}
+
+.empty-icon {
+  font-size: 28px;
 }
 </style>

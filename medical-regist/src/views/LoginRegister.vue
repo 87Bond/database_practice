@@ -7,6 +7,10 @@
         <p class="sub">便捷挂号 / 消息沟通 / 个人中心全流程体验</p>
       </div>
       <div class="hero-badge">安心就医 · 轻松每一天</div>
+      <div class="hero-meta">
+        <span class="pill">智能分诊 · 即时沟通</span>
+        <span class="pill ghost">数据安全 · 便捷高效</span>
+      </div>
     </div>
     <div class="auth-card card">
       <div class="tab-header">
@@ -136,19 +140,20 @@ export default {
 <style scoped>
 .login-register {
   display: grid;
-  gap: 24px;
+  gap: 22px;
+  grid-template-columns: minmax(420px, 1.1fr) 420px;
+  align-items: stretch;
 }
 
 .auth-hero {
-  padding: 24px 28px;
+  padding: 28px 30px;
   border-radius: 18px;
-  background: linear-gradient(120deg, rgba(59, 110, 227, 0.12), rgba(90, 216, 255, 0.18));
+  background: linear-gradient(135deg, rgba(59, 110, 227, 0.16), rgba(90, 216, 255, 0.1));
   border: 1px solid rgba(59, 110, 227, 0.18);
-  box-shadow: 0 10px 30px rgba(59, 110, 227, 0.18);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  box-shadow: 0 14px 34px rgba(59, 110, 227, 0.18);
+  display: grid;
   gap: 14px;
+  align-content: center;
 }
 
 .eyebrow {
@@ -176,9 +181,14 @@ export default {
   font-weight: 700;
 }
 
+.hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .auth-card {
-  max-width: 640px;
-  margin: 0 auto;
+  max-width: 100%;
 }
 
 .tab-header {
@@ -228,7 +238,7 @@ export default {
   padding: 10px 12px;
   border: 1px solid rgba(59, 110, 227, 0.18);
   border-radius: 10px;
-  background: #f8faff;
+  background: var(--field-bg);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -241,5 +251,11 @@ export default {
 .submit-btn {
   width: 100%;
   margin-top: 4px;
+}
+
+@media (max-width: 1024px) {
+  .login-register {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
