@@ -1,0 +1,232 @@
+\documentclass[a4paper,12pt]{article}
+
+\PassOptionsToPackage{fontset=fandol}{ctex}
+
+\usepackage{./SCUformat}
+\usepackage{./cover}
+\usepackage{booktabs}
+\usepackage{longtable}
+
+\begin{document}
+
+\include{info}
+\makecover
+
+\tableofcontents
+\clearpage
+
+\section{引言}
+\subsection{目的}
+本报告面向课程《数据库原理》实验的期末验收，系统性描述“医院门诊挂号系统”的需求、数据库设计与实现方案，说明系统\textbf{做什么}、\textbf{怎么做}以及关键业务规则如何落地到关系模式与事务逻辑中。
+
+\subsection{项目范围}
+系统覆盖门诊挂号的核心业务链：账号与角色、科室/医生信息、号源（排班）管理、在线挂号、余额支付与取消退款、就诊病历、站内消息与权限控制。系统包含四类角色：患者、医生、科室管理员、系统管理员。
+
+\subsection{文档概览}
+第 1 章说明背景与范围；第 2 章给出系统概览与典型流程；第 3 章描述整体架构与关键实现策略；第 4 章给出数据库 E-R 图、关系模式与约束；第 5 章说明各业务模块的实现；第 6 章概述前端页面；第 7 章为需求矩阵；第 8 章附录提供部署与测试方式。
+
+\subsection{参考资料}
+\begin{itemize}
+  \item 项目文档：\texttt{README.md}、\texttt{SYSTEM\_README.md}、\texttt{requirements/需求.md}、\texttt{requirements/数据表设计.md}、\texttt{requirements/模块接口.md}。
+  \item 数据库脚本：\texttt{sql/schema.sql}、\texttt{sql/sample\_data.sql}。
+  \item PostgreSQL 官方文档（SQL 语法、约束与事务语义）。
+\end{itemize}
+
+\subsection{术语与缩略语}
+E-R 图（实体联系图）、PK（主键）、FK（外键）、ACID（事务特性）、REST（接口风格）、Slot（号源/时间段）、Reg（挂号记录）、RBAC（基于角色的访问控制，本文实现为简化版）。
+
+\section{系统概览}
+\subsection{系统目标}
+以“数据库为中心”完成一个可运行的 Web 项目，能够体现数据库原理课程的核心点：关系模式设计、主外键约束、典型增删改查、关键业务规则的一致性维护（容量、金额、状态流转）以及面向多角色的权限控制。
+
+\subsection{角色与权限}
+\begin{itemize}
+  \item 患者（patient）：注册/登录；查询科室、医生与可预约号源；创建挂号、支付/取消、充值；查看挂号与就诊记录；在满足规则下发送站内消息。
+  \item 医生（doctor）：查看某日挂号患者列表；为已挂号记录录入病历；向患者/科室管理员/系统管理员发送消息（受“已支付挂号+10 天有效期”约束）。
+  \item 科室管理员（dept\_manager）：维护本科室医生归属；为医生创建号源（日期、起止时间、容量、费用、备注）；查看本科室号源与挂号记录；按规则向本科室医生/患者发送消息。
+  \item 系统管理员（admin）：创建医生/科室管理员/系统管理员账号；冻结/解冻账号；通过消息机制发送系统通知。
+\end{itemize}
+
+\subsection{典型业务流程}
+\begin{enumerate}
+  \item 管理员初始化：执行 \texttt{sql/schema.sql} 建表，执行 \texttt{sql/sample\_data.sql} 插入样例数据；使用系统管理员账号登录并进行账号与号源维护。
+  \item 患者挂号：选择科室与日期查询医生号源（含起止时间、余量与费用）$\rightarrow$ 选择 \texttt{slotId} 创建挂号 $\rightarrow$ 余额支付或取消（已支付按 90\% 退款）。
+  \item 医生就诊：医生端按日期查看挂号患者列表 $\rightarrow$ 对某挂号记录录入病历（诊断、治疗方案、医嘱）$\rightarrow$ 患者在个人中心查看就诊记录。
+  \item 消息沟通：基于“已支付挂号关系 + 双方最近消息 10 天内活跃 + 角色限制”校验发送权限；支持会话列表与会话明细查询。
+\end{enumerate}
+
+\section{系统架构}
+\subsection{总体架构}
+系统采用前后端分离三层结构：
+\begin{itemize}
+  \item 前端：Vue2，实现登录/注册、挂号页、消息页、个人中心与各角色工作台；通过代理将 \texttt{/api} 请求转发到后端。
+  \item 后端：Spring Boot + MyBatis，提供 REST 接口（统一前缀 \texttt{/api}），业务逻辑集中在 Service 层，DAO 使用 Mapper 访问 PostgreSQL。
+  \item 数据库：PostgreSQL，采用“手动执行脚本建库建表”的方式，保证验收时数据库模式清晰可复现。
+\end{itemize}
+
+\subsection{鉴权与会话策略（实验简化）}
+为了聚焦数据库与业务一致性，本项目未引入完整 JWT/Spring Security。登录成功后返回的 \texttt{token} 简化为 \texttt{userId}，前端在请求头携带 \texttt{X-User-Id}，后端据此识别当前用户并做角色校验。
+
+\subsection{关键一致性策略}
+\begin{itemize}
+  \item 号源容量一致性：创建/取消挂号在同一事务内同时写入 \texttt{registration} 并更新 \texttt{doctor\_time\_slot.booked\_count}，避免出现“挂号成功但容量未扣减”等不一致。
+  \item 事务边界：挂号创建、支付与取消均以事务方式执行，保证“状态更新 + 金额/余量变更”原子提交或回滚。
+  \item 金额统一以“分”存储：\texttt{patient.money}、\texttt{doctor\_time\_slot.fee}、\texttt{registration.reg\_fee} 统一使用整数分，避免浮点误差；前端录入“元”，后端转换为“分”落库。
+  \item 业务约束校验：不可预约过去日期；号源不足禁止挂号；同一患者同一号源仅允许一条未取消记录；号源时间段不可重叠；取消已支付挂号按 90\% 退款；消息需满足“付费挂号关系 + 10 天有效期”。
+\end{itemize}
+
+\section{数据设计}
+\subsection{E-R 图}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{Image/db-er.png}
+  \caption{数据库核心实体关系图}
+\end{figure}
+
+\subsection{关系模式与数据字典}
+表结构与字段含义以 \texttt{sql/schema.sql} 和 \texttt{requirements/数据表设计.md} 为准，核心表如下：
+
+\begin{longtable}{p{3cm} p{8cm} p{3cm}}
+\toprule
+表名 & 核心字段（节选） & 说明 \\
+\midrule
+\endhead
+\texttt{user\_directory} & \texttt{user\_id, user\_name, phone, password, create\_time, is\_active} & 统一用户表（四类角色共享） \\
+\texttt{patient} & \texttt{user\_id, gender, age, id\_card, money} & 患者扩展信息，\texttt{money} 单位分 \\
+\texttt{department} & \texttt{department\_id, department\_name, introduction, location} & 科室主数据 \\
+\texttt{doctor} & \texttt{user\_id, doctor\_name, department\_id, title, specialty} & 医生信息，关联科室 \\
+\texttt{department\_manager} & \texttt{user\_id, department\_id, work\_phone} & 科室管理员，关联科室 \\
+\texttt{"system\_user"} & \texttt{user\_id, work\_phone} & 系统管理员 \\
+\texttt{doctor\_time\_slot} & \texttt{slot\_id, doctor\_id, slot\_date, start\_time, end\_time, capacity, booked\_count, fee} & 医生号源（排班） \\
+\texttt{registration} & \texttt{reg\_id, patient\_id, doctor\_id, reg\_date, reg\_time\_slot, reg\_status, reg\_fee, pay\_status, slot\_id} & 挂号记录与状态流转 \\
+\texttt{medical\_record} & \texttt{record\_id, reg\_id, diagnosis, treatment\_plan, advice} & 病历，一次挂号对应一条记录 \\
+\texttt{message} & \texttt{message\_id, title, content, create\_user\_id, target\_user\_id, create\_time, is\_valid} & 站内消息 \\
+\texttt{audit\_log} & \texttt{log\_id, user\_id, action, target, time} & 操作审计 \\
+\bottomrule
+\end{longtable}
+
+\subsection{关键约束与规则落地}
+\begin{itemize}
+  \item 主外键约束：在 \texttt{sql/schema.sql} 中通过 FK 约束保障实体引用完整性（如 \texttt{registration.patient\_id} 引用 \texttt{patient.user\_id}）。
+  \item 手机号唯一：\texttt{user\_directory.phone} 设置唯一约束，避免重复注册。
+  \item 号源时间段不重叠：科室管理员创建号源时，后端在同一医生同一日期内检查 \texttt{start\_time/end\_time} 区间是否与已有号源重叠。
+  \item 容量控制：创建挂号前校验 \texttt{capacity > booked\_count}；成功后在事务内将 \texttt{booked\_count + 1}，取消时 \texttt{booked\_count - 1}。
+  \item 同号源重复挂号限制：创建挂号前按 \texttt{(patient\_id, slot\_id)} 查询是否存在未取消记录，避免重复占号。
+  \item 取消退款：已支付挂号取消按 90\% 退款并回写余额；未支付直接取消。
+  \item 消息权限与时效：发送消息需满足“已支付挂号关系”且双方最近消息在 10 天内；超期仅可查看历史，不允许继续发送。
+\end{itemize}
+
+\subsection{状态字段约定}
+\begin{itemize}
+  \item 挂号状态 \texttt{registration.reg\_status}：\texttt{Booked}（已预约）、\texttt{Canceled}（已取消）、\texttt{Finished}（已完成，就诊流程可扩展）。
+  \item 支付状态 \texttt{registration.pay\_status}：\texttt{Unpaid}（未支付）、\texttt{Paid}（已支付）、\texttt{Refunded}（已退款/作废）。
+\end{itemize}
+
+\subsection{脚本与示例数据}
+项目不自动建表。验收或演示时，建议使用数据库管理工具连接 PostgreSQL 并执行：\texttt{sql/schema.sql} 创建表结构，\texttt{sql/sample\_data.sql} 插入示例数据（含科室、医生、管理员、号源与挂号样例）。
+
+\section{组件设计}
+\subsection{账号与用户管理}
+\begin{itemize}
+  \item 患者注册：写入 \texttt{user\_directory} 与 \texttt{patient}（统一用户 + 角色扩展信息）。
+  \item 登录：支持使用 \texttt{userId} 或手机号登录；返回 \texttt{role} 与 \texttt{token=userId}。
+  \item 冻结/解冻：系统管理员通过更新 \texttt{user\_directory.is\_active} 控制账号可用性。
+\end{itemize}
+
+\subsection{科室、医生与号源}
+\begin{itemize}
+  \item 科室列表：提供科室名称与地点，供挂号页筛选。
+  \item 医生列表：按科室与日期返回医生信息与可预约号源（含起止时间、余量与费用）。
+  \item 号源创建：科室管理员为本科室医生创建号源；时间段校验 \texttt{start\_time < end\_time} 且不重叠。
+\end{itemize}
+
+\subsubsection{号源创建（科室管理员）实现步骤}
+\begin{enumerate}
+  \item 权限校验：当前用户必须是科室管理员，且只能为本科室医生创建号源。
+  \item 参数校验：日期、起止时间、容量、费用必填，且满足 \texttt{start\_time < end\_time}、\texttt{capacity > 0}。
+  \item 重叠检查：查询该医生该日期的已有号源，若存在区间重叠（非 \texttt{end <= existing.start} 且非 \texttt{start >= existing.end}）则拒绝创建。
+  \item 落库：生成 \texttt{slot\_id}；将展示字段 \texttt{time\_slot} 固化为 “HH:mm-HH:mm”；费用由“元”换算为“分”；初始化 \texttt{booked\_count=0} 与 \texttt{status=OPEN}。
+\end{enumerate}
+
+\subsection{挂号、支付与取消}
+\begin{itemize}
+  \item 创建挂号：必须选择 \texttt{slotId}；校验日期合法、医生科室匹配、号源余量；写入 \texttt{registration} 并扣减余量。
+  \item 支付：从 \texttt{patient.money} 扣减 \texttt{registration.reg\_fee}，写入支付时间并更新状态。
+  \item 取消：更新挂号状态；已支付按 90\% 退款；释放号源余量。
+\end{itemize}
+
+\subsubsection{创建挂号实现步骤}
+\begin{enumerate}
+  \item 校验 \texttt{regDate} 不能早于当天。
+  \item 校验医生属于所选科室，防止“科室/医生不匹配”造成脏数据。
+  \item 通过 \texttt{slotId} 定位号源，并校验号源的医生/科室/日期与请求一致。
+  \item 校验余量：\texttt{capacity > booked\_count} 才允许创建。
+  \item 校验重复挂号：同一患者同一 \texttt{slotId} 若存在未取消记录则拒绝创建。
+  \item 写入 \texttt{registration}：复制费用到 \texttt{reg\_fee}；将 \texttt{reg\_time\_slot} 统一保存为 “HH:mm-HH:mm”；初始化 \texttt{reg\_status=Booked}、\texttt{pay\_status=Unpaid}。
+  \item 更新号源：\texttt{booked\_count + 1}（与挂号写入处于同一事务内）。
+\end{enumerate}
+
+\subsubsection{支付与取消实现步骤}
+\begin{enumerate}
+  \item 支付：校验余额充足后扣减 \texttt{patient.money}，并将 \texttt{pay\_status} 更新为 \texttt{Paid}，记录 \texttt{paid\_at}。
+  \item 取消：仅允许取消 \texttt{Booked} 状态；已支付按 90\% 退款并更新余额；将挂号状态置为 \texttt{Canceled/Refunded} 并释放号源（\texttt{booked\_count - 1}）。
+\end{enumerate}
+
+\subsection{病历与就诊记录}
+医生对挂号记录录入病历（诊断、治疗方案、医嘱），患者与医生端分别提供查询接口，保证一次挂号对应一份可追溯的就诊记录。
+
+\subsection{站内消息}
+消息模块支持收件箱/发件箱、会话列表（最近一条）与会话明细。发送消息时进行角色与关系校验，并结合“10 天活跃期”限制控制继续对话的权限。
+
+\subsubsection{消息权限与 10 天有效期}
+\begin{enumerate}
+  \item 角色限制：按发送方/接收方角色确定可通信范围（患者仅能向就诊医生或对应科室管理员发送；医生可向就诊患者/本科室管理员/系统管理员发送；科室管理员可向本科室医生与本科室就诊患者发送；系统管理员可向任意用户发送）。
+  \item 关系校验：对“患者$\leftrightarrow$医生/科室管理员”等关系，要求存在近 10 天内的\textbf{已支付挂号}记录。
+  \item 会话活跃校验：若双方最近一条消息时间超过 10 天，禁止继续发送（历史可查看）。
+  \item 撤回/作废：通过 \texttt{message.is\_valid} 进行逻辑失效，不物理删除，便于追溯。
+\end{enumerate}
+
+\section{人机界面设计}
+前端按角色展示不同导航与工作台：
+\begin{itemize}
+  \item 登录/注册：患者注册与四类用户登录入口。
+  \item 挂号页（患者）：选择科室与日期，展示医生与可约号源，完成挂号创建。
+  \item 消息页（全角色）：会话列表 + 聊天明细 + 发送消息。
+  \item 个人中心（全角色）：查看个人信息、修改密码；患者可充值与管理挂号记录；医生可查看挂号与病历。
+  \item 医生端：按日期查看患者挂号并录入病历。
+  \item 科室端：维护医生归属、创建号源、查看本科室挂号记录。
+  \item 系统管理端：创建账号、冻结/解冻、发送系统通知。
+\end{itemize}
+
+\section{需求矩阵}
+\begin{table}[H]
+  \centering
+  \begin{tabular}{p{4cm} p{9cm}}
+    \toprule
+    \textbf{需求} & \textbf{实现（主要接口/数据表/页面）} \\
+    \midrule
+    登录/注册与修改密码 & \texttt{/api/auth/*}；\texttt{user\_directory}、\texttt{patient}；登录注册页、个人中心 \\
+    科室与医生号源查询 & \texttt{/api/departments}、\texttt{/api/doctors}；\texttt{department}、\texttt{doctor}、\texttt{doctor\_time\_slot}；挂号页 \\
+    创建挂号、支付与取消 & \texttt{/api/registrations}、\texttt{/api/registrations/\{id\}/pay}、\texttt{/api/registrations/\{id\}/cancel}；\texttt{registration}、\texttt{doctor\_time\_slot}、\texttt{patient}；个人中心 \\
+    号源维护（科室管理员） & \texttt{/api/dept/slots}、\texttt{/api/dept/doctors}；\texttt{doctor\_time\_slot}；科室端 \\
+    病历与就诊记录 & \texttt{/api/medical-records}；\texttt{medical\_record}、\texttt{registration}；医生端、个人中心 \\
+    站内消息与权限时效 & \texttt{/api/messages*}；\texttt{message}、\texttt{registration}；消息页 \\
+    账号创建与冻结/解冻 & \texttt{/api/users/*}；\texttt{user\_directory} 与角色子表；系统管理端 \\
+    \bottomrule
+  \end{tabular}
+  \caption{需求—实现矩阵（节选）}
+\end{table}
+
+\section{APPENDICES}
+\subsection{部署与运行}
+\begin{enumerate}
+  \item 准备 PostgreSQL（本地 \texttt{localhost:5432}），连接后执行 \texttt{sql/schema.sql}（可选执行 \texttt{sql/sample\_data.sql}）。
+  \item 后端配置运行 mvn compile 和 mvn package 进行编译后，用 java -jar 运行生成的 jar 包。
+  \item 前端安装依赖 npm install ,编译静态文件 npm run build ，配置服务器能够访问静态文件。
+  \item 使用nginx将前端 /api/ 请求代理到后端使静态文件（即前端）可以向后端发送请求。
+\end{enumerate}
+
+\subsection{演示账号与建议流程}
+若执行了 \texttt{sql/sample\_data.sql}，可使用系统管理员账号 \texttt{AD0001 / admin123} 登录进行演示；患者可通过前端注册创建。建议演示顺序：患者挂号（创建/支付/取消）$\rightarrow$ 医生查看挂号并写病历 $\rightarrow$ 双方消息沟通 $\rightarrow$ 管理端创建账号与冻结解冻。
+
+\end{document}
