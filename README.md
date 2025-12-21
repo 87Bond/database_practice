@@ -5,6 +5,7 @@
 - 后端：Spring Boot 3.5 + MyBatis + PostgreSQL 16（目录：`backend/backend`）
 - 前端：Vue 2（目录：`medical-regist`）
 - 数据库：PostgreSQL，使用 `sql/schema.sql` 中的模式
+- demo网址：http://database.zhengshibo.top:2000/
 
 > 关于“数据库模式在哪里建”：  
 > 本项目 **不自动建表**，推荐你在 DBeaver 里连接 PostgreSQL，手动执行 `sql/schema.sql`（以及可选的 `sql/sample_data.sql`）来创建表结构和初始数据，更符合“数据库原理”实验的要求。
