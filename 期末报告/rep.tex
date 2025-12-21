@@ -49,7 +49,7 @@ E-R 图（实体联系图）、PK（主键）、FK（外键）、ACID（事务�
 
 \subsection{典型业务流程}
 \begin{enumerate}
-  \item 管理员初始化：执行 \texttt{sql/schema.sql} 建表，执行 \texttt{sql/sample\_data.sql} 插入样例数据；使用系统管理员账号登录并进行账号与号源维护。
+  \item 管理员初始化：执行 \texttt{sql/schema.sql} 建表，执行 \texttt{sql/sample\_data.sql} 插入样例数据；使用系统管理员账号登录进行账号维护，使用科室管理员账号登录进行号源维护。
   \item 患者挂号：选择科室与日期查询医生号源（含起止时间、余量与费用）$\rightarrow$ 选择 \texttt{slotId} 创建挂号 $\rightarrow$ 余额支付或取消（已支付按 90\% 退款）。
   \item 医生就诊：医生端按日期查看挂号患者列表 $\rightarrow$ 对某挂号记录录入病历（诊断、治疗方案、医嘱）$\rightarrow$ 患者在个人中心查看就诊记录。
   \item 消息沟通：基于“已支付挂号关系 + 双方最近消息 10 天内活跃 + 角色限制”校验发送权限；支持会话列表与会话明细查询。
@@ -76,7 +76,7 @@ E-R 图（实体联系图）、PK（主键）、FK（外键）、ACID（事务�
 \end{itemize}
 
 \section{数据设计}
-\subsection{E-R 图}
+\subsection{关系模式图}
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.95\textwidth]{Image/db-er.png}

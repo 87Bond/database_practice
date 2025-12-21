@@ -1,0 +1,40 @@
+\frametitle{分栏}
+\vspace{1ex}
+^^I\begin{columns}
+^^I^^I\begin{column}[t]{0.35\linewidth}
+^^I^^I^^I这里是栏一
+^^I^^I^^I\begin{figure}[h]
+^^I^^I^^I^^I\begin{center}
+^^I^^I^^I^^I^^I\includegraphics[width=.8\columnwidth]{logo_name}
+^^I^^I^^I^^I^^I\\四川大学校徽及校名\\
+^^I^^I^^I^^I^^I\vspace{1ex}
+^^I^^I^^I^^I^^I\includegraphics[width=.4\columnwidth]{Fy}
+^^I^^I^^I^^I^^I\\四川大学飞扬俱乐部
+^^I^^I^^I^^I\end{center}
+^^I^^I^^I\end{figure}
+^^I^^I\end{column}
+^^I^^I\pause
+^^I^^I\begin{column}[t]{0.4\linewidth}
+^^I^^I^^I这里是栏二
+^^I^^I^^I\vspace{1ex}
+^^I^^I^^I\begin{itemize}
+^^I^^I^^I^^I\item 无序列表环境示例
+^^I^^I^^I^^I\begin{enumerate}
+^^I^^I^^I^^I^^I\item 有序列表环境示例
+^^I^^I^^I^^I^^I\item 有序列表环境示例
+^^I^^I^^I^^I^^I\item 有序列表环境示例
+^^I^^I^^I^^I\end{enumerate}
+^^I^^I^^I^^I\item 无序列表环境示例
+^^I^^I^^I^^I\item 无序列表环境示例
+^^I^^I^^I\end{itemize}
+^^I^^I\end{column}
+^^I^^I\pause
+^^I^^I\begin{column}[t]{0.25\linewidth}
+^^I^^I^^I这里是栏三
+^^I^^I^^I\par\vskip1ex
+^^I^^I^^I四川大学校训\\
+^^I^^I^^I\vskip2ex
+^^I^^I^^I海纳百川\\[.5ex]
+^^I^^I^^I有容乃大
+^^I^^I\end{column}
+^^I\end{columns}

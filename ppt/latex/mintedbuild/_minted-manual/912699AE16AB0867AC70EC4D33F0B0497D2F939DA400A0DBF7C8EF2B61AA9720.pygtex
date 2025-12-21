@@ -1,0 +1,9 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+模板依VIS手册定义了以下颜色:\PYG{k}{\PYGZbs{}\PYGZbs{}}
+\PYG{k}{\PYGZbs{}textcolor}\PYG{n+nb}{\PYGZob{}}JXred\PYG{n+nb}{\PYGZcb{}\PYGZob{}}锦绣红\PYG{n+nb}{\PYGZcb{}}
+\PYG{k}{\PYGZbs{}textcolor}\PYG{n+nb}{\PYGZob{}}YYgrey\PYG{n+nb}{\PYGZcb{}\PYGZob{}}优雅灰\PYG{n+nb}{\PYGZcb{}}
+\PYG{k}{\PYGZbs{}textcolor}\PYG{n+nb}{\PYGZob{}}BSblue\PYG{n+nb}{\PYGZcb{}\PYGZob{}}宝石蓝\PYG{n+nb}{\PYGZcb{}}
+\PYG{k}{\PYGZbs{}textcolor}\PYG{n+nb}{\PYGZob{}}HYgreen\PYG{n+nb}{\PYGZcb{}\PYGZob{}}荷叶绿\PYG{n+nb}{\PYGZcb{}}
+\PYG{k}{\PYGZbs{}textcolor}\PYG{n+nb}{\PYGZob{}}YXyellow\PYG{n+nb}{\PYGZcb{}\PYGZob{}}银杏黄\PYG{n+nb}{\PYGZcb{}}\PYG{k}{\PYGZbs{}\PYGZbs{}}
+定义颜色请使用\PYG{k}{\PYGZbs{}verb}|\PYG{k}{\PYGZbs{}definecolor}|
+\end{Verbatim}
