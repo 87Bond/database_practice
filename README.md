@@ -18,7 +18,7 @@
 - Maven 3.9+（你本机已有）
 - Node.js 16+/npm 或 pnpm（用于跑 Vue 前端）
 - PostgreSQL 16（本地 `localhost:5432`）
-
+f
 ---
 
 ## 二、数据库准备（建议用 DBeaver）
