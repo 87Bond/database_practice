@@ -1,10 +1,10 @@
-This is XeTeX, Version 3.141592653-2.6-0.999997 (TeX Live 2025) (preloaded format=xelatex 2025.4.22)  17 DEC 2025 15:57
+This is XeTeX, Version 3.141592653-2.6-0.999997 (TeX Live 2025) (preloaded format=xelatex 2025.4.22)  23 DEC 2025 13:41
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**/Users/zhengshibo/Desktop/homework/数据库原理/experiment/database_practice/ppt/main.tex
-(/Users/zhengshibo/Desktop/homework/数据库原理/experiment/database_practice/ppt/main.tex
+**/Users/zhengshibo/Desktop/homework/数据库原理/experiment/database_practice/ppt/latex/main.tex
+(/Users/zhengshibo/Desktop/homework/数据库原理/experiment/database_practice/ppt/latex/main.tex
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-01-18>
 (/usr/local/texlive/2025/texmf-dist/tex/latex/beamer/beamer.cls
@@ -2607,11 +2607,11 @@ Package logreq Info: Writing requests to 'main.run.xml'.
  ) 
 Here is how much of TeX's memory you used:
  59816 strings out of 473832
- 1304551 string characters out of 5729481
+ 1304569 string characters out of 5729481
  2396283 words of memory out of 5000000
  81820 multiletter control sequences out of 15000+600000
  566240 words of font info for 122 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 128i,19n,134p,2029b,4106s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 128i,19n,134p,2035b,4106s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on main.xdv (12 pages, 297800 bytes).
+Output written on main.xdv (12 pages, 297924 bytes).

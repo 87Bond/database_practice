@@ -47,6 +47,21 @@ E-R 图（实体联系图）、PK（主键）、FK（外键）、ACID（事务�
   \item 系统管理员（admin）：创建医生/科室管理员/系统管理员账号；冻结/解冻账号；通过消息机制发送系统通知。
 \end{itemize}
 
+\subsection{团队与分工}
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{2cm} p{5cm} p{3.5cm}}
+\toprule
+成员 & 核心职责 & 备注 \\
+\midrule
+郑仕博 & 前端美化和后端与核心业务（挂号、支付、取消、权限） & 接口联调与验收准备 \\
+吴正博 & 前端页面与交互、消息与工作台体验 & 交互打磨与展示支持 \\
+高俊翔 & 数据库建模、SQL 脚本、ER 图与文档 & 演示录屏与流程串联 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \subsection{典型业务流程}
 \begin{enumerate}
   \item 管理员初始化：执行 \texttt{sql/schema.sql} 建表，执行 \texttt{sql/sample\_data.sql} 插入样例数据；使用系统管理员账号登录进行账号维护，使用科室管理员账号登录进行号源维护。

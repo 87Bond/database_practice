@@ -7,9 +7,10 @@
 \contentsline {section}{\numberline {2}系统概览}{3}{section.2}%
 \contentsline {subsection}{\numberline {2.1}系统目标}{3}{subsection.2.1}%
 \contentsline {subsection}{\numberline {2.2}角色与权限}{4}{subsection.2.2}%
-\contentsline {subsection}{\numberline {2.3}典型业务流程}{4}{subsection.2.3}%
-\contentsline {section}{\numberline {3}系统架构}{4}{section.3}%
-\contentsline {subsection}{\numberline {3.1}总体架构}{4}{subsection.3.1}%
+\contentsline {subsection}{\numberline {2.3}团队与分工}{4}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}典型业务流程}{4}{subsection.2.4}%
+\contentsline {section}{\numberline {3}系统架构}{5}{section.3}%
+\contentsline {subsection}{\numberline {3.1}总体架构}{5}{subsection.3.1}%
 \contentsline {subsection}{\numberline {3.2}鉴权与会话策略（实验简化）}{5}{subsection.3.2}%
 \contentsline {subsection}{\numberline {3.3}关键一致性策略}{5}{subsection.3.3}%
 \contentsline {section}{\numberline {4}数据设计}{6}{section.4}%
