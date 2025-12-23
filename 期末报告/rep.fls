@@ -327,9 +327,12 @@ INPUT /usr/local/texlive/2025/texmf-dist/fonts/tfm/public/cm/cmmi10.tfm
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/tfm/public/cm/cmsy10.tfm
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/tfm/public/wasy/wasy10.tfm
 INPUT /usr/local/texlive/2025/texmf-dist/fonts/tfm/public/cm/cmr10.tfm
-INPUT ./Image/db-er.png
-INPUT ./Image/db-er.png
-INPUT ./Image/db-er.png
+INPUT ../requirements/ER图.png
+INPUT ../requirements/ER图.png
+INPUT ../requirements/ER图.png
+INPUT ../requirements/数据库关系图.png
+INPUT ../requirements/数据库关系图.png
+INPUT ../requirements/数据库关系图.png
 INPUT rep.aux
 INPUT ./info.aux
 INPUT ./info.aux
